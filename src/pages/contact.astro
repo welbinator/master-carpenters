@@ -59,8 +59,7 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 			<div class="contact-form-wrap">
 				<h2>Send a Message</h2>
 				<p class="form-intro">Prefer to write it out? Fill in the form and Layne will get back to you.</p>
-				<form class="contact-form" name="contact" method="POST" data-netlify="true" action="/contact-success">
-					<input type="hidden" name="form-name" value="contact" />
+				<form class="contact-form" id="contact-form" novalidate>
 					<div class="form-row">
 						<div class="form-field">
 							<label for="name">Your Name</label>
@@ -92,7 +91,8 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 						<label for="message">Tell us more</label>
 						<textarea id="message" name="message" rows="5" placeholder="Describe your project, location, timeline, or any questions you have."></textarea>
 					</div>
-					<button type="submit" class="btn btn-primary btn-lg submit-btn">Send Message</button>
+					<div class="form-status" id="form-status" aria-live="polite"></div>
+					<button type="submit" class="btn btn-primary btn-lg submit-btn" id="submit-btn">Send Message</button>
 				</form>
 			</div>
 		</div>
@@ -232,4 +232,81 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 		.contact-grid { grid-template-columns: 1fr; gap: var(--spacing-3xl); }
 		.form-row { grid-template-columns: 1fr; }
 	}
+
+	/* Form status messages */
+	.form-status {
+		display: none;
+		padding: var(--spacing-md);
+		border-radius: var(--radius);
+		font-size: var(--font-size-sm);
+		font-weight: 500;
+	}
+	.form-status.success {
+		display: block;
+		background: color-mix(in srgb, #22c55e 12%, transparent);
+		border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
+		color: #15803d;
+	}
+	.form-status.error {
+		display: block;
+		background: color-mix(in srgb, #ef4444 12%, transparent);
+		border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+		color: #b91c1c;
+	}
+	.submit-btn:disabled {
+		opacity: 0.65;
+		cursor: not-allowed;
+	}
 </style>
+
+<script>
+	const form = document.getElementById("contact-form") as HTMLFormElement;
+	const status = document.getElementById("form-status") as HTMLElement;
+	const btn = document.getElementById("submit-btn") as HTMLButtonElement;
+
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		status.className = "form-status";
+		status.textContent = "";
+
+		const data = {
+			name: (form.querySelector<HTMLInputElement>("#name"))?.value.trim() || "",
+			email: (form.querySelector<HTMLInputElement>("#email"))?.value.trim() || "",
+			phone: (form.querySelector<HTMLInputElement>("#phone"))?.value.trim() || "",
+			project: (form.querySelector<HTMLSelectElement>("#project"))?.value || "",
+			message: (form.querySelector<HTMLTextAreaElement>("#message"))?.value.trim() || "",
+		};
+
+		if (!data.name || !data.email) {
+			status.textContent = "Please fill in your name and email address.";
+			status.className = "form-status error";
+			return;
+		}
+
+		btn.disabled = true;
+		btn.textContent = "Sending…";
+
+		try {
+			const res = await fetch("/api/contact", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(data),
+			});
+			const json = await res.json() as { ok: boolean; error?: string };
+
+			if (json.ok) {
+				form.reset();
+				status.textContent = "Message sent! Layne will be in touch soon.";
+				status.className = "form-status success";
+				btn.textContent = "Sent ✓";
+			} else {
+				throw new Error(json.error || "Unknown error");
+			}
+		} catch (err) {
+			status.textContent = "Something went wrong. Please call Layne directly at (319) 360-4130.";
+			status.className = "form-status error";
+			btn.disabled = false;
+			btn.textContent = "Send Message";
+		}
+	});
+</script>
