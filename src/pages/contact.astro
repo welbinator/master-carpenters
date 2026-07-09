@@ -303,7 +303,8 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 				throw new Error(json.error || "Unknown error");
 			}
 		} catch (err) {
-			status.textContent = "Something went wrong. Please call Layne directly at (319) 360-4130.";
+			const msg = err instanceof Error ? err.message : "Unknown error";
+			status.textContent = `Error: ${msg}`;
 			status.className = "form-status error";
 			btn.disabled = false;
 			btn.textContent = "Send Message";

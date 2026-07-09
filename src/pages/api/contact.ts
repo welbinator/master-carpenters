@@ -48,7 +48,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 	try {
 		const db = locals.runtime?.env?.DB;
 
-		if (!db) throw new Error("DB binding not available");
+		if (!db) {
+			return new Response(JSON.stringify({ ok: false, error: "DB binding not available — check Cloudflare Pages bindings" }), { status: 500, headers });
+		}
 
 		const id = makeId();
 		const now = new Date().toISOString();
@@ -63,8 +65,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			.bind(id, slug, now, now, now, id, name.trim(), email.trim(), phone?.trim() || "", project || "", message?.trim() || "")
 			.run();
 	} catch (err) {
-		console.error("D1 save error:", err);
-		return new Response(JSON.stringify({ ok: false, error: "Failed to save submission" }), { status: 500, headers });
+		const msg = err instanceof Error ? err.message : String(err);
+		console.error("D1 save error:", msg);
+		return new Response(JSON.stringify({ ok: false, error: `D1 error: ${msg}` }), { status: 500, headers });
 	}
 
 	// 2. Send email notification via Web3Forms (non-fatal)
