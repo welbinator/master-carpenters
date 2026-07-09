@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 const WEB3FORMS_KEY = "2d418359-f7b6-45e1-a983-07eda32418f0";
 
 // Generate a ULID-compatible ID
@@ -17,7 +18,7 @@ function makeId(): string {
 	return id;
 }
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
 	const headers = { "Content-Type": "application/json" };
 
 	// Parse request body
@@ -46,7 +47,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
 	// 1. Save to D1
 	try {
-		const db = locals.runtime?.env?.DB;
+		const db = env.DB;
 
 		if (!db) {
 			return new Response(JSON.stringify({ ok: false, error: "DB binding not available — check Cloudflare Pages bindings" }), { status: 500, headers });
