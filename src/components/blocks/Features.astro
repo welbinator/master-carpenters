@@ -37,14 +37,21 @@ type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
 		)}
 
 		{photos.length > 0 ? (
-			<div class="preview-grid">
-				{photos.map((photo) => {
+			<div class="preview-grid" id="features-preview-grid">
+				{photos.map((photo, index) => {
 					const img = photo.data.photo as EmDashImage;
 					const storageKey = img?.meta?.storageKey;
 					if (!storageKey) return null;
 					const imgUrl = `/_emdash/api/media/file/${storageKey}`;
 					return (
-						<a href="/gallery" class="preview-tile" aria-label={photo.data.caption as string || "View gallery"}>
+						<button
+							type="button"
+							class="preview-tile"
+							data-src={imgUrl}
+							data-caption={photo.data.caption as string || ""}
+							data-index={index}
+							aria-label={`View ${photo.data.caption as string || "photo"} full size`}
+						>
 							<img
 								src={imgUrl}
 								alt={photo.data.caption as string || "Master Carpenters project photo"}
@@ -54,7 +61,7 @@ type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
 							<div class="preview-overlay">
 								<span class="preview-caption">{photo.data.caption as string}</span>
 							</div>
-						</a>
+						</button>
 					);
 				})}
 			</div>
@@ -67,6 +74,146 @@ type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
 		</div>
 	</div>
 </section>
+
+<script>
+	// ── Lightbox for homepage preview grid ───────────────────────
+	// Injected onto document.body to escape any CSS stacking context traps
+	(function () {
+		const grid = document.getElementById("features-preview-grid");
+		if (!grid) return;
+
+		// Build lightbox and append to body
+		const lb = document.createElement("div");
+		lb.id = "features-lightbox";
+		lb.setAttribute("role", "dialog");
+		lb.setAttribute("aria-modal", "true");
+		lb.setAttribute("aria-label", "Image lightbox");
+		lb.innerHTML = `
+			<button class="flb-close" aria-label="Close lightbox">&times;</button>
+			<button class="flb-prev" aria-label="Previous image">&#8249;</button>
+			<button class="flb-next" aria-label="Next image">&#8250;</button>
+			<div class="flb-inner">
+				<img class="flb-img" src="" alt="" />
+				<p class="flb-caption"></p>
+			</div>
+		`;
+		lb.style.cssText = `
+			display: none;
+			position: fixed;
+			inset: 0;
+			z-index: 9999;
+			background: rgba(0,0,0,0.92);
+			align-items: center;
+			justify-content: center;
+		`;
+		document.body.appendChild(lb);
+
+		// Inject styles
+		const style = document.createElement("style");
+		style.textContent = `
+			#features-lightbox.open { display: flex !important; }
+			.flb-inner {
+				max-width: 90vw;
+				max-height: 90vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			.flb-inner .flb-img {
+				max-width: 90vw;
+				max-height: 80vh;
+				object-fit: contain;
+				border-radius: 8px;
+				display: block;
+			}
+			.flb-caption {
+				color: rgba(255,255,255,0.8);
+				font-size: 0.9rem;
+				margin-top: 0.75rem;
+				text-align: center;
+				min-height: 1.5em;
+			}
+			.flb-close {
+				position: fixed;
+				top: 1rem;
+				right: 1.5rem;
+				background: none;
+				border: none;
+				color: #fff;
+				font-size: 2.5rem;
+				line-height: 1;
+				cursor: pointer;
+				opacity: 0.8;
+				z-index: 10000;
+			}
+			.flb-close:hover { opacity: 1; }
+			.flb-prev, .flb-next {
+				position: fixed;
+				top: 50%;
+				transform: translateY(-50%);
+				background: rgba(255,255,255,0.1);
+				border: none;
+				color: #fff;
+				font-size: 3rem;
+				line-height: 1;
+				padding: 0.5rem 1rem;
+				cursor: pointer;
+				border-radius: 6px;
+				transition: background 0.2s;
+				z-index: 10000;
+			}
+			.flb-prev { left: 1rem; }
+			.flb-next { right: 1rem; }
+			.flb-prev:hover, .flb-next:hover { background: rgba(255,255,255,0.25); }
+		`;
+		document.head.appendChild(style);
+
+		const lbImg = lb.querySelector<HTMLImageElement>(".flb-img")!;
+		const lbCaption = lb.querySelector<HTMLElement>(".flb-caption")!;
+		const lbClose = lb.querySelector<HTMLButtonElement>(".flb-close")!;
+		const lbPrev = lb.querySelector<HTMLButtonElement>(".flb-prev")!;
+		const lbNext = lb.querySelector<HTMLButtonElement>(".flb-next")!;
+
+		const tiles = Array.from(grid.querySelectorAll<HTMLButtonElement>(".preview-tile"));
+		let currentIndex = 0;
+
+		function showSlide(index: number) {
+			currentIndex = (index + tiles.length) % tiles.length;
+			const btn = tiles[currentIndex];
+			lbImg.src = btn.dataset.src || "";
+			lbImg.alt = btn.dataset.caption || "Master Carpenters project photo";
+			lbCaption.textContent = btn.dataset.caption || "";
+			lbPrev.style.display = tiles.length > 1 ? "" : "none";
+			lbNext.style.display = tiles.length > 1 ? "" : "none";
+		}
+
+		function openLightbox(btn: HTMLButtonElement) {
+			currentIndex = tiles.indexOf(btn);
+			showSlide(currentIndex);
+			lb.classList.add("open");
+			document.body.style.overflow = "hidden";
+			lbClose.focus();
+		}
+
+		function closeLightbox() {
+			lb.classList.remove("open");
+			document.body.style.overflow = "";
+		}
+
+		tiles.forEach((btn) => btn.addEventListener("click", () => openLightbox(btn)));
+		lbClose.addEventListener("click", closeLightbox);
+		lb.addEventListener("click", (e) => { if (e.target === lb) closeLightbox(); });
+		lbPrev.addEventListener("click", () => showSlide(currentIndex - 1));
+		lbNext.addEventListener("click", () => showSlide(currentIndex + 1));
+
+		document.addEventListener("keydown", (e) => {
+			if (!lb.classList.contains("open")) return;
+			if (e.key === "Escape") closeLightbox();
+			if (e.key === "ArrowLeft") showSlide(currentIndex - 1);
+			if (e.key === "ArrowRight") showSlide(currentIndex + 1);
+		});
+	})();
+</script>
 
 <style>
 	.preview-grid {
@@ -83,6 +230,9 @@ type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
 		overflow: hidden;
 		aspect-ratio: 4 / 3;
 		background: var(--color-surface);
+		cursor: zoom-in;
+		border: none;
+		padding: 0;
 	}
 
 	.preview-tile img {
