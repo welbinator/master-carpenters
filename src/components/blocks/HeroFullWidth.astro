@@ -115,6 +115,18 @@ const heroImage = node.imageUrl || "/_emdash/api/media/file/01KX1MWHZ378ZBPYR93F
 		);
 	}
 
+	@media (max-width: 768px) {
+		.hero-overlay {
+			background: linear-gradient(
+				to bottom,
+				rgba(0, 0, 0, 0.45) 0%,
+				rgba(0, 0, 0, 0.55) 40%,
+				rgba(0, 0, 0, 0.80) 75%,
+				rgba(0, 0, 0, 0.90) 100%
+			);
+		}
+	}
+
 	/* ── Content ── */
 	.hero-inner {
 		position: relative;
