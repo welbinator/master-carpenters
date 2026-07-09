@@ -398,7 +398,7 @@ const pageCtx = createPublicPageContext({
 			.nav-links a:hover { color: var(--color-text); }
 
 			.nav-actions {
-				display: flex;
+				display: none;
 				align-items: center;
 				gap: var(--spacing-md);
 			}
@@ -614,6 +614,7 @@ const pageCtx = createPublicPageContext({
 			@media (max-width: 768px) {
 				.nav-hamburger { display: flex; }
 				.nav-links { display: none; }
+				.nav-actions { display: flex; }
 				.mobile-nav { display: block; }
 				.nav-phone { display: none; }
 			}
