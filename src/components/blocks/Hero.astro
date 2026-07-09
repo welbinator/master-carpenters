@@ -65,8 +65,8 @@ const heroImage = node.imageUrl || "/hero-placeholder.jpg";
 			)}
 		</div>
 
-		<!-- Right: image with floating badge -->
-		<div class="hero-media">
+		<!-- Right: image with floating badge (hidden in centered/no-CTA variant) -->
+		{!centered && <div class="hero-media">
 			<div class="hero-img-wrap">
 				<img
 					src={heroImage}
@@ -84,7 +84,7 @@ const heroImage = node.imageUrl || "/hero-placeholder.jpg";
 				<!-- Subtle wood-grain accent bar -->
 				<div class="hero-accent-bar"></div>
 			</div>
-		</div>
+		</div>}
 	</div>
 </section>
 
