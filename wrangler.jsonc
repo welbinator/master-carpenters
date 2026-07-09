@@ -20,5 +20,9 @@
 
   "assets": {
     "directory": "./dist/client"
+  },
+
+  "cache": {
+    "enabled": true
   }
 }
