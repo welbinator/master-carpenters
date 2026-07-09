@@ -52,22 +52,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
 		const id = makeId();
 		const now = new Date().toISOString();
-		const title = `${name.trim()} — ${new Date().toLocaleDateString("en-US")}`;
-		const data = JSON.stringify({
-			name: name.trim(),
-			email: email.trim(),
-			phone: phone?.trim() || "",
-			project: project || "",
-			message: message?.trim() || "",
-		});
+		const slug = `submission-${id.toLowerCase()}`;
 
 		await db
 			.prepare(
 				`INSERT INTO ec_contact_submissions
-					(id, status, created_at, updated_at, published_at, version, locale, translation_group, title, content)
-				VALUES (?, 'published', ?, ?, ?, 1, 'en', ?, ?, ?)`
+					(id, slug, status, created_at, updated_at, published_at, version, locale, translation_group, name, email, phone, project, message)
+				VALUES (?, ?, 'published', ?, ?, ?, 1, 'en', ?, ?, ?, ?, ?, ?)`
 			)
-			.bind(id, now, now, now, id, title, data)
+			.bind(id, slug, now, now, now, id, name.trim(), email.trim(), phone?.trim() || "", project || "", message?.trim() || "")
 			.run();
 	} catch (err) {
 		console.error("D1 save error:", err);
