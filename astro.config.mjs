@@ -3,8 +3,7 @@ import react from "@astrojs/react";
 import icon from "astro-iconset";
 import { defineConfig, fontProviders } from "astro/config";
 import emdash from "emdash/astro";
-import { d1 } from "@emdash-cms/cloudflare/db/d1";
-import { r2 } from "@emdash-cms/cloudflare/storage/r2";
+import { d1, r2 } from "@emdash-cms/cloudflare";
 
 export default defineConfig({
 	output: "server",
