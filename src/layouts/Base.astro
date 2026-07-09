@@ -213,6 +213,20 @@ const pageCtx = createPublicPageContext({
 					padding: 0;
 				}
 
+				/* Force light theme — override LightningCSS polyfill AND native color-scheme */
+				:root.light {
+					color-scheme: light;
+					--lightningcss-light: initial;
+					--lightningcss-dark: ;
+				}
+
+				/* Force dark theme */
+				:root.dark {
+					color-scheme: dark;
+					--lightningcss-light: ;
+					--lightningcss-dark: initial;
+				}
+
 				@supports (color: light-dark(#000, #fff)) {
 					:root.light { color-scheme: light; }
 					:root.dark  { color-scheme: dark; }
