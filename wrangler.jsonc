@@ -1,0 +1,24 @@
+{
+  "name": "master-carpenters",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "master-carpenters-db",
+      "database_id": "0bc6fa2a-67ed-49d6-a3d8-eacea997fe08"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "master-carpenters-media"
+    }
+  ],
+
+  "assets": {
+    "directory": "./dist/client"
+  }
+}

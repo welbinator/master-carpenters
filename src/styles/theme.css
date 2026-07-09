@@ -1,0 +1,65 @@
+/*
+  theme.css — Master Carpenters brand overrides.
+  Replaces the marketing template's indigo/pink gradient palette
+  with a clean, professional construction-company aesthetic:
+  warm off-white backgrounds, slate text, deep forest green brand,
+  and muted gold accent. No neon. No loud gradients.
+*/
+
+/* Brand color overrides */
+:root {
+	--color-brand:        light-dark(#2d5a3d, #4a8c61);
+	--color-brand-strong: light-dark(#1e3d2a, #2d5a3d);
+	--color-brand-soft:   light-dark(#4a8c61, #6ab383);
+	--color-accent:       light-dark(#8b7355, #a89070);
+	--color-accent-soft:  light-dark(#c4a882, #d4bc9a);
+
+	/* Warmer backgrounds */
+	--color-bg:      light-dark(#fafaf8, #111210);
+	--color-surface: light-dark(#f4f3ef, #1a1c19);
+	--color-border:  light-dark(#dcdbd5, #2e3129);
+	--color-text:    light-dark(#1a1a18, #eeeee8);
+	--color-muted:   light-dark(#5c5c52, #8a8a7a);
+
+	/* Flat gradients — no dramatic color sweeps */
+	--gradient-brand:        linear-gradient(135deg, var(--color-brand), var(--color-brand-soft));
+	--gradient-brand-strong: linear-gradient(135deg, var(--color-brand-strong), var(--color-brand));
+	--gradient-brand-soft:   linear-gradient(135deg, var(--color-brand-soft), var(--color-accent-soft));
+	--gradient-headline:     linear-gradient(135deg, var(--color-text), var(--color-muted));
+
+	/* Typography */
+	--font-weight-display: 700;
+	--font-weight-heading: 600;
+}
+
+/* Logo wordmark — plain text, no gradient fill */
+.site-logo {
+	background: none !important;
+	-webkit-background-clip: unset !important;
+	-webkit-text-fill-color: unset !important;
+	background-clip: unset !important;
+	color: var(--color-text) !important;
+	font-size: 1.35rem !important;
+	letter-spacing: -0.02em;
+}
+
+/* Keep CTA buttons solid, not gradient */
+.btn-primary {
+	background: var(--color-brand) !important;
+	color: #fff !important;
+}
+.btn-primary:hover {
+	background: var(--color-brand-strong) !important;
+	box-shadow: 0 4px 20px color-mix(in srgb, var(--color-brand) 30%, transparent) !important;
+}
+
+/* Phone CTA in nav */
+.nav-phone {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--color-brand) !important;
+	letter-spacing: 0.01em;
+}
+
+/* Review stars */
+.star-filled { color: #c9902a; }

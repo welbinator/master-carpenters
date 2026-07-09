@@ -1,0 +1,149 @@
+---
+import { getEmDashCollection } from "emdash";
+
+interface Props {
+	node: {
+		_key?: string;
+		headline?: string;
+		subheadline?: string;
+		features: Array<{
+			icon: string;
+			title: string;
+			description: string;
+		}>;
+	};
+}
+
+const { node } = Astro.props;
+const { _key, headline, subheadline } = node;
+
+// Fetch the first 6 gallery photos to preview on the homepage
+const { entries: photos } = await getEmDashCollection("gallery", {
+	status: "published",
+	orderBy: { sort_order: "asc" },
+	limit: 6,
+});
+
+type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
+---
+
+<section class="features section" id={_key}>
+	<div class="container">
+		{(headline || subheadline) && (
+			<header class="section-header">
+				{headline && <h2 class="section-headline">{headline}</h2>}
+				{subheadline && <p class="section-subheadline">{subheadline}</p>}
+			</header>
+		)}
+
+		{photos.length > 0 ? (
+			<div class="preview-grid">
+				{photos.map((photo) => {
+					const img = photo.data.photo as EmDashImage;
+					const storageKey = img?.meta?.storageKey;
+					if (!storageKey) return null;
+					const imgUrl = `/_emdash/api/media/file/${storageKey}`;
+					return (
+						<a href="/gallery" class="preview-tile" aria-label={photo.data.caption as string || "View gallery"}>
+							<img
+								src={imgUrl}
+								alt={photo.data.caption as string || "Master Carpenters project photo"}
+								loading="lazy"
+								decoding="async"
+							/>
+							<div class="preview-overlay">
+								<span class="preview-caption">{photo.data.caption as string}</span>
+							</div>
+						</a>
+					);
+				})}
+			</div>
+		) : null}
+
+		<div class="gallery-link-wrap">
+			<a href="/gallery" class="btn btn-secondary btn-lg gallery-cta-link">
+				View the Full Gallery &rarr;
+			</a>
+		</div>
+	</div>
+</section>
+
+<style>
+	.preview-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: var(--spacing-md);
+		margin-bottom: var(--spacing-2xl);
+	}
+
+	.preview-tile {
+		position: relative;
+		display: block;
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+		aspect-ratio: 4 / 3;
+		background: var(--color-surface);
+	}
+
+	.preview-tile img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		transition: transform 0.4s ease;
+	}
+
+	.preview-tile:hover img {
+		transform: scale(1.05);
+	}
+
+	.preview-overlay {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%);
+		display: flex;
+		align-items: flex-end;
+		padding: var(--spacing-md);
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.preview-tile:hover .preview-overlay {
+		opacity: 1;
+	}
+
+	.preview-caption {
+		color: #fff;
+		font-size: var(--font-size-sm);
+		font-weight: 500;
+		line-height: 1.3;
+	}
+
+	.gallery-link-wrap {
+		display: flex;
+		justify-content: center;
+	}
+
+	.gallery-cta-link {
+		font-weight: 600;
+		border-color: var(--color-brand);
+		color: var(--color-brand);
+	}
+
+	.gallery-cta-link:hover {
+		background: color-mix(in srgb, var(--color-brand) 8%, transparent);
+	}
+
+	@media (max-width: 900px) {
+		.preview-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	@media (max-width: 540px) {
+		.preview-grid {
+			grid-template-columns: 1fr 1fr;
+			gap: var(--spacing-sm);
+		}
+	}
+</style>

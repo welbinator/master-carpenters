@@ -1,0 +1,237 @@
+---
+import { getEmDashCollection } from "emdash";
+import Base from "../layouts/Base.astro";
+
+// Query all published gallery photos, ordered by sort_order
+const { entries: photos, cacheHint } = await getEmDashCollection("gallery", {
+	status: "published",
+	orderBy: { sort_order: "asc" },
+	limit: 100,
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+// Group by category for filter tabs
+const categories = ["All", ...new Set(photos.map((p) => p.data.category || "General").filter(Boolean))];
+---
+
+<Base
+	title="Gallery"
+	description="See our work — Master Carpenters deck and siding projects across Cedar Rapids, Iowa."
+>
+	<section class="gallery-hero section">
+		<div class="container">
+			<header class="section-header">
+				<h1 class="section-headline">Our Work</h1>
+				<p class="section-subheadline">
+					Every project is a reflection of the care Layne and his crew put into the job.
+					Browse our recent decks, siding, and exterior work below.
+				</p>
+			</header>
+
+			{photos.length > 0 ? (
+				<>
+					<!-- Filter bar -->
+					{categories.length > 2 && (
+						<div class="filter-bar" id="filter-bar">
+							{categories.map((cat) => (
+								<button
+									class={`filter-btn ${cat === "All" ? "active" : ""}`}
+									data-category={cat}
+									type="button"
+								>
+									{cat}
+								</button>
+							))}
+						</div>
+					)}
+
+					<!-- Photo grid -->
+					<div class="photo-grid" id="photo-grid">
+						{photos.map((photo) => {
+							// EmDash image field shape: { provider, id, filename, meta: { storageKey } }
+							type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
+							const img = photo.data.photo as EmDashImage;
+							const storageKey = img?.meta?.storageKey;
+							if (!storageKey) return null;
+							const imgUrl = `/_emdash/api/media/file/${storageKey}`;
+							return (
+								<figure
+									class="photo-card"
+									data-category={photo.data.category || "General"}
+								>
+									<div class="photo-wrap">
+										<img
+											src={imgUrl}
+											alt={photo.data.caption as string || "Master Carpenters project photo"}
+											loading="lazy"
+											decoding="async"
+										/>
+										{photo.data.caption && (
+											<figcaption class="photo-caption">{photo.data.caption}</figcaption>
+										)}
+									</div>
+								</figure>
+							);
+						})}
+					</div>
+				</>
+			) : (
+				<div class="gallery-empty">
+					<p>Photos will appear here once they've been uploaded to the media library.</p>
+					<a href="/_emdash/admin" class="btn btn-primary" style="margin-top:1.5rem;">Upload Photos in Admin</a>
+				</div>
+			)}
+		</div>
+	</section>
+
+	<section class="gallery-cta section">
+		<div class="container">
+			<div class="cta-box">
+				<h2>Like what you see?</h2>
+				<p>Get a free estimate for your deck, siding, or exterior project.</p>
+				<div class="cta-actions">
+					<a href="/contact" class="btn btn-primary btn-lg">Get a Free Estimate</a>
+					<a href="tel:3193604130" class="btn btn-secondary btn-lg">(319) 360-4130</a>
+				</div>
+			</div>
+		</div>
+	</section>
+</Base>
+
+<script>
+	const filterBar = document.getElementById("filter-bar");
+	const grid = document.getElementById("photo-grid");
+	if (filterBar && grid) {
+		filterBar.addEventListener("click", (e) => {
+			const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".filter-btn");
+			if (!btn) return;
+			filterBar.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+			btn.classList.add("active");
+			const cat = btn.dataset.category;
+			grid.querySelectorAll<HTMLElement>(".photo-card").forEach((card) => {
+				const show = cat === "All" || card.dataset.category === cat;
+				card.style.display = show ? "" : "none";
+			});
+		});
+	}
+</script>
+
+<style>
+	.gallery-hero { padding-bottom: 0; }
+
+	.filter-bar {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-sm);
+		justify-content: center;
+		margin-bottom: var(--spacing-2xl);
+	}
+
+	.filter-btn {
+		padding: var(--spacing-xs) var(--spacing-md);
+		background: transparent;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-full, 999px);
+		font-family: var(--font-body);
+		font-size: var(--font-size-sm);
+		font-weight: 500;
+		color: var(--color-muted);
+		cursor: pointer;
+		transition: all var(--transition-fast);
+	}
+
+	.filter-btn:hover,
+	.filter-btn.active {
+		background: var(--color-brand);
+		border-color: var(--color-brand);
+		color: #fff;
+	}
+
+	.photo-grid {
+		columns: 3 280px;
+		column-gap: var(--spacing-md);
+	}
+
+	.photo-card {
+		break-inside: avoid;
+		margin-bottom: var(--spacing-md);
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+	}
+
+	.photo-wrap {
+		position: relative;
+		overflow: hidden;
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+	}
+
+	.photo-wrap img {
+		width: 100%;
+		height: auto;
+		display: block;
+		transition: transform 0.4s ease;
+	}
+
+	.photo-card:hover .photo-wrap img {
+		transform: scale(1.03);
+	}
+
+	.photo-caption {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: var(--spacing-sm) var(--spacing-md);
+		background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+		color: #fff;
+		font-size: var(--font-size-sm);
+		font-weight: 500;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.photo-card:hover .photo-caption {
+		opacity: 1;
+	}
+
+	.gallery-empty {
+		text-align: center;
+		padding: var(--spacing-5xl) 0;
+		color: var(--color-muted);
+	}
+
+	.gallery-cta { padding-top: var(--spacing-3xl); }
+
+	.cta-box {
+		text-align: center;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--spacing-4xl);
+	}
+
+	.cta-box h2 {
+		font-size: var(--font-size-3xl);
+		font-weight: var(--font-weight-display);
+		margin-bottom: var(--spacing-md);
+	}
+
+	.cta-box p {
+		font-size: var(--font-size-lg);
+		color: var(--color-muted);
+		margin-bottom: var(--spacing-2xl);
+	}
+
+	.cta-actions {
+		display: flex;
+		gap: var(--spacing-md);
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	@media (max-width: 640px) {
+		.photo-grid { columns: 1; }
+	}
+</style>

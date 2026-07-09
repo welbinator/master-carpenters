@@ -1,0 +1,18 @@
+---
+import { getEmDashEntry } from "emdash";
+import Base from "../layouts/Base.astro";
+import MarketingBlocks from "../components/MarketingBlocks.astro";
+
+const { entry: page, cacheHint } = await getEmDashEntry("pages", "services");
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+---
+
+<Base
+	title="Services"
+	description="Deck building, siding installation, windows, doors, roofing, and porches — expert exterior work in Cedar Rapids, Iowa by Master Carpenters."
+>
+	{page?.data.content
+		? <MarketingBlocks value={page.data.content} />
+		: <div class="container" style="padding:4rem 0;"><p>Services content coming soon.</p></div>
+	}
+</Base>

@@ -1,0 +1,116 @@
+---
+import { getEmDashEntry } from "emdash";
+import Base from "../layouts/Base.astro";
+import MarketingBlocks from "../components/MarketingBlocks.astro";
+
+const { entry: page, cacheHint } = await getEmDashEntry("pages", "home");
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+---
+
+<Base
+	title={undefined}
+	description="Master Carpenters LLC — custom decks, siding, windows, and exterior work in Cedar Rapids, Iowa. Call Layne Stark for a free estimate."
+>
+	{page?.data.content
+		? <MarketingBlocks value={page.data.content} />
+		: (
+			<div class="empty-state">
+				<h1>Master Carpenters</h1>
+				<p>Edit the home page content in the admin to get started.</p>
+				<a href="/_emdash/admin" class="btn btn-primary">Open Admin</a>
+			</div>
+		)
+	}
+
+	<!-- Trust bar -->
+	<div class="trust-bar">
+		<div class="container trust-inner">
+			<div class="trust-item">
+				<span class="trust-num">20+</span>
+				<span class="trust-label">5-Star Reviews</span>
+			</div>
+			<div class="trust-divider"></div>
+			<div class="trust-item">
+				<span class="trust-num">10+</span>
+				<span class="trust-label">Years Experience</span>
+			</div>
+			<div class="trust-divider"></div>
+			<div class="trust-item">
+				<span class="trust-num">Cedar Rapids</span>
+				<span class="trust-label">Iowa</span>
+			</div>
+			<div class="trust-divider"></div>
+			<div class="trust-item trust-cta">
+				<a href="tel:3193604130" class="trust-phone">(319) 360-4130</a>
+				<span class="trust-label">Call or text Layne</span>
+			</div>
+		</div>
+	</div>
+</Base>
+
+<style>
+	.empty-state {
+		text-align: center;
+		padding: var(--spacing-5xl) var(--spacing-lg);
+		max-width: var(--max-width);
+		margin: 0 auto;
+	}
+	.empty-state h1 { margin-bottom: var(--spacing-md); }
+	.empty-state p { color: var(--color-muted); margin-bottom: var(--spacing-xl); }
+
+	.trust-bar {
+		background: var(--color-brand);
+		color: #fff;
+		padding: var(--spacing-xl) 0;
+	}
+
+	.trust-inner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-2xl);
+		flex-wrap: wrap;
+	}
+
+	.trust-item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.2rem;
+	}
+
+	.trust-num {
+		font-size: var(--font-size-2xl);
+		font-weight: 700;
+		line-height: 1;
+		color: #fff;
+	}
+
+	.trust-label {
+		font-size: var(--font-size-xs);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		opacity: 0.8;
+		color: #fff;
+	}
+
+	.trust-divider {
+		width: 1px;
+		height: 40px;
+		background: rgba(255,255,255,0.25);
+	}
+
+	.trust-phone {
+		font-size: var(--font-size-xl);
+		font-weight: 700;
+		color: #fff;
+		letter-spacing: 0.01em;
+	}
+
+	.trust-cta .trust-label { margin-top: 0.1rem; }
+
+	@media (max-width: 600px) {
+		.trust-divider { display: none; }
+		.trust-inner { gap: var(--spacing-xl); justify-content: space-around; }
+	}
+</style>

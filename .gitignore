@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local database
+data.db
+*.db-shm
+*.db-wal
+
+# Uploads (media stored in R2 on Cloudflare)
+uploads/
+
+# Astro / Vite cache
+.astro/
+.vite/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Wrangler
+.wrangler/

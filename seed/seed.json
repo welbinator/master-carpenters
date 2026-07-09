@@ -1,0 +1,532 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "Master Carpenters",
+		"description": "Website for Master Carpenters LLC — decks, siding, and exterior work in Iowa",
+		"author": "EmDash"
+	},
+	"settings": {
+		"title": "Master Carpenters",
+		"tagline": "Quality decks, siding & exterior work. Cedar Rapids, Iowa."
+	},
+	"collections": [
+		{
+			"slug": "pages",
+			"label": "Pages",
+			"labelSingular": "Page",
+			"supports": ["drafts", "revisions", "seo"],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText"
+				}
+			]
+		},
+		{
+			"slug": "reviews",
+			"label": "Reviews",
+			"labelSingular": "Review",
+			"description": "Customer reviews pulled from Google Business Profile",
+			"icon": "star",
+			"supports": ["drafts"],
+			"fields": [
+				{
+					"slug": "reviewer_name",
+					"label": "Reviewer Name",
+					"type": "string",
+					"required": true
+				},
+				{
+					"slug": "rating",
+					"label": "Rating (1–5)",
+					"type": "integer",
+					"defaultValue": 5
+				},
+				{
+					"slug": "review_text",
+					"label": "Review Text",
+					"type": "text"
+				},
+				{
+					"slug": "date_posted",
+					"label": "Date Posted",
+					"type": "string"
+				},
+				{
+					"slug": "featured",
+					"label": "Featured on homepage",
+					"type": "boolean",
+					"defaultValue": false
+				}
+			]
+		},
+		{
+			"slug": "gallery",
+			"label": "Gallery",
+			"labelSingular": "Gallery Photo",
+			"description": "Project photos for the gallery page",
+			"icon": "image",
+			"supports": ["drafts"],
+			"fields": [
+				{
+					"slug": "photo",
+					"label": "Photo",
+					"type": "image",
+					"required": true
+				},
+				{
+					"slug": "caption",
+					"label": "Caption",
+					"type": "string"
+				},
+				{
+					"slug": "category",
+					"label": "Category",
+					"type": "string",
+					"defaultValue": "Decks"
+				},
+				{
+					"slug": "sort_order",
+					"label": "Sort Order",
+					"type": "integer",
+					"defaultValue": 0
+				}
+			]
+		}
+	],
+	"menus": [
+		{
+			"name": "primary",
+			"label": "Primary Navigation",
+			"items": [
+				{ "type": "custom", "label": "Home", "url": "/" },
+				{ "type": "custom", "label": "Services", "url": "/services" },
+				{ "type": "custom", "label": "Gallery", "url": "/gallery" },
+				{ "type": "custom", "label": "Reviews", "url": "/#reviews" },
+				{ "type": "custom", "label": "Contact", "url": "/contact" }
+			]
+		},
+		{
+			"name": "footer_links",
+			"label": "Footer Links",
+			"items": [
+				{ "type": "custom", "label": "Home", "url": "/" },
+				{ "type": "custom", "label": "Services", "url": "/services" },
+				{ "type": "custom", "label": "Gallery", "url": "/gallery" },
+				{ "type": "custom", "label": "Contact", "url": "/contact" }
+			]
+		}
+	],
+	"content": {
+		"pages": [
+			{
+				"id": "home",
+				"slug": "home",
+				"status": "published",
+				"data": {
+					"title": "Home",
+					"content": [
+						{
+							"_type": "marketing.hero",
+							"_key": "hero",
+							"headline": "Built Right. Built to Last.",
+							"subheadline": "Master Carpenters delivers expert deck building, siding installation, and exterior work across Cedar Rapids, Iowa. Owner Layne Stark leads every project — your home gets his personal attention from start to finish.",
+							"primaryCtaLabel": "Get a Free Estimate",
+							"primaryCtaUrl": "/contact",
+							"secondaryCtaLabel": "See Our Work",
+							"secondaryCtaUrl": "/gallery"
+						},
+						{
+							"_type": "marketing.features",
+							"_key": "services",
+							"headline": "What We Do",
+							"subheadline": "We focus on what we do best — exterior work that transforms your home and stands the test of Iowa winters.",
+							"features": [
+								{
+									"icon": "star",
+									"title": "Deck Building",
+									"description": "Custom composite and wood decks designed for your space and lifestyle. From simple platforms to multi-level entertaining areas, built to last."
+								},
+								{
+									"icon": "shield",
+									"title": "Siding Installation",
+									"description": "New siding that improves your home's curb appeal and weather protection. We work with vinyl, fiber cement, and wood options to fit your budget."
+								},
+								{
+									"icon": "heart",
+									"title": "Windows & Doors",
+									"description": "Replacement windows and doors that improve energy efficiency and give your home a fresh look. Installed cleanly, finished to perfection."
+								},
+								{
+									"icon": "check",
+									"title": "Roofing",
+									"description": "Roof replacements and repairs done right. We use quality materials and take pride in clean, thorough workmanship that protects your home for years."
+								},
+								{
+									"icon": "users",
+									"title": "Porches & Screened Rooms",
+									"description": "Extend your living space outdoors with a custom porch or screened enclosure. Designed to complement your home's existing style."
+								},
+								{
+									"icon": "clock",
+									"title": "On Time. On Budget.",
+									"description": "Clear communication, honest estimates, and no surprises. Layne keeps you informed every step of the way — that's the Master Carpenters guarantee."
+								}
+							]
+						},
+						{
+							"_type": "marketing.testimonials",
+							"_key": "reviews",
+							"headline": "What Our Customers Say",
+							"testimonials": [
+								{
+									"quote": "We love our new deck! It turned out beautiful. They are hard workers and the deck is built to last many years to come.",
+									"author": "Kay Hamilton",
+									"role": "Cedar Rapids, IA"
+								},
+								{
+									"quote": "Unbelievably professional craftsmanship. Not only did they do our Trex landing and steps perfectly but they did the landscaping and stained wood under sunroom to match. Amazing job!",
+									"author": "Beth Schulte",
+									"role": "Cedar Rapids, IA"
+								},
+								{
+									"quote": "Layne took the time to be very thorough to explain everything from estimates all the way through. He took his time in the planning stage to make sure we were happy with every detail.",
+									"author": "Molly",
+									"role": "Cedar Rapids, IA"
+								},
+								{
+									"quote": "Layne and his crew did an excellent job and go above and beyond to make sure things are done the right way and to the satisfaction of their clients!",
+									"author": "R&L Boyum",
+									"role": "Cedar Rapids, IA"
+								},
+								{
+									"quote": "Fantastic work! Worked with us to nail down design, swapped out boards that were low quality and took their time paying attention to details.",
+									"author": "Bradley Painter",
+									"role": "Cedar Rapids, IA"
+								},
+								{
+									"quote": "If you want someone that listens, is patient, cordial, knows how to treat customers right, and delivers, look no farther!",
+									"author": "Natalie Garcia-McIntire",
+									"role": "Cedar Rapids, IA"
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "services",
+				"slug": "services",
+				"status": "published",
+				"data": {
+					"title": "Services",
+					"content": [
+						{
+							"_type": "marketing.hero",
+							"_key": "services-hero",
+							"headline": "Our Services",
+							"subheadline": "Expert exterior work for your home. Every project is led by Layne Stark — not handed off to a subcontractor.",
+							"centered": true
+						},
+						{
+							"_type": "marketing.features",
+							"_key": "services-detail",
+							"headline": "What We Specialize In",
+							"subheadline": "We focus on decks and siding, but we've got you covered for the full exterior.",
+							"features": [
+								{
+									"icon": "star",
+									"title": "Composite & Wood Decks",
+									"description": "We build decks that fit how you live. Trex composite, cedar, pressure-treated — we'll help you pick the right material and design a space you'll actually use."
+								},
+								{
+									"icon": "shield",
+									"title": "Siding Replacement",
+									"description": "New siding transforms a home. We install vinyl, fiber cement, and wood siding with tight seams and clean trim work. Your neighbors will notice."
+								},
+								{
+									"icon": "heart",
+									"title": "Windows & Doors",
+									"description": "New windows and doors improve your home's energy efficiency and security. We handle the whole job — removal, installation, trim, and cleanup."
+								},
+								{
+									"icon": "check",
+									"title": "Roofing",
+									"description": "Full roof replacements using quality shingles. We tear off the old, inspect the decking, and install new roofing that lasts. No shortcuts."
+								},
+								{
+									"icon": "users",
+									"title": "Porches & Enclosures",
+									"description": "Front porches, screened rooms, sunrooms — we build outdoor living spaces that extend the usability of your home across Iowa's seasons."
+								},
+								{
+									"icon": "globe",
+									"title": "Repairs & Smaller Jobs",
+									"description": "Got a board that needs replacing, a railing that's loose, or flashing that's failing? We take on smaller jobs too. If it's exterior, we can help."
+								}
+							]
+						},
+						{
+							"_type": "marketing.faq",
+							"_key": "services-faq",
+							"headline": "Common Questions",
+							"items": [
+								{
+									"question": "Do you offer free estimates?",
+									"answer": "Yes. Reach out via the contact page and Layne will get back to you to schedule a time to look at your project. No cost, no obligation."
+								},
+								{
+									"question": "What areas do you serve?",
+									"answer": "We're based in Cedar Rapids, Iowa and serve the surrounding area. Give us a call and we'll let you know if we can make it work for your location."
+								},
+								{
+									"question": "How long does a typical deck project take?",
+									"answer": "It depends on size and complexity, but most decks are completed in one to two weeks once materials are on-site. We'll give you a realistic timeline upfront."
+								},
+								{
+									"question": "Are you licensed and insured?",
+									"answer": "Yes. We carry the appropriate licensing and insurance for the work we do. You can ask for documentation — we're happy to provide it."
+								},
+								{
+									"question": "Do you handle permits?",
+									"answer": "We'll walk you through what's needed. Permit requirements vary by project and municipality, and we'll make sure everything is done to code."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "contact",
+				"slug": "contact",
+				"status": "published",
+				"data": {
+					"title": "Contact",
+					"content": [
+						{
+							"_type": "marketing.hero",
+							"_key": "contact-hero",
+							"headline": "Get in Touch",
+							"subheadline": "Ready to get started or just have questions? Call or text Layne directly — he answers his own phone.",
+							"centered": true
+						}
+					]
+				}
+			}
+		],
+		"reviews": [
+			{
+				"id": "review-bradley-painter",
+				"slug": "review-bradley-painter",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Bradley Painter",
+					"rating": 5,
+					"review_text": "Fantastic work! Worked with us to nail down design, swapped out boards that were low quality and took their time paying attention to details. Looks great!",
+					"date_posted": "a month ago",
+					"featured": true
+				}
+			},
+			{
+				"id": "review-natalie-garcia",
+				"slug": "review-natalie-garcia",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Natalie Garcia-McIntire",
+					"rating": 5,
+					"review_text": "It was great working with Layne. If you want someone that listens, is patient, cordial, knows how to treat customers right, and delivers, look no farther! Recommend him I do!",
+					"date_posted": "a month ago",
+					"featured": true
+				}
+			},
+			{
+				"id": "review-nick-frank",
+				"slug": "review-nick-frank",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Nick Frank",
+					"rating": 5,
+					"review_text": "Layne was very easy to communicate with and did a great job with updates and transparency of cost & timing. Well done!!",
+					"date_posted": "a month ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-crystal-fier",
+				"slug": "review-crystal-fier",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Crystal Fier",
+					"rating": 5,
+					"review_text": "Super friendly, product was exactly what was shown. Pleasure doing business with you, Layne!",
+					"date_posted": "4 months ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-tyson-morio",
+				"slug": "review-tyson-morio",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Tyson Morio",
+					"rating": 5,
+					"review_text": "Very happy with the work they did. They were up-front with any challenges encountered and came up with great solutions! Highly recommended. They know what they're doing and have a great attention to detail.",
+					"date_posted": "7 months ago",
+					"featured": true
+				}
+			},
+			{
+				"id": "review-molly",
+				"slug": "review-molly",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Molly",
+					"rating": 5,
+					"review_text": "Master Carpenters did my siding and all new windows. Layne took the time to be very thorough to explain everything to me from the start from estimates to all the way through. He took his time in the planning stage to make sure we were happy with every detail. I highly recommend them!",
+					"date_posted": "a year ago",
+					"featured": true
+				}
+			},
+			{
+				"id": "review-susie-ireland",
+				"slug": "review-susie-ireland",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Susie Ireland",
+					"rating": 5,
+					"review_text": "Layne is easy to reach, communicates clearly, and follows through on what he says he will do. His crew did a great job with some repairs I had done at my house. I will definitely use them again.",
+					"date_posted": "a year ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-kay-hamilton",
+				"slug": "review-kay-hamilton",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Kay Hamilton",
+					"rating": 5,
+					"review_text": "We love our new deck! It turned out beautiful. They are hard workers and the deck is built to last many years to come. Thank you Master Carpenters!",
+					"date_posted": "a year ago",
+					"featured": true
+				}
+			},
+			{
+				"id": "review-philip-morehead",
+				"slug": "review-philip-morehead",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Philip Morehead",
+					"rating": 5,
+					"review_text": "I use Master Carpenters for any job I have. They always do a great job and are very trustworthy!",
+					"date_posted": "a year ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-beth-schulte",
+				"slug": "review-beth-schulte",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Beth Schulte",
+					"rating": 5,
+					"review_text": "Unbelievably professional craftsmanship. So happy with the finished project! Not only did they do our Trex landing and steps perfectly but they did the landscaping and stained wood under sunroom to match. Amazing job!",
+					"date_posted": "a year ago",
+					"featured": true
+				}
+			},
+			{
+				"id": "review-boyum",
+				"slug": "review-boyum",
+				"status": "published",
+				"data": {
+					"reviewer_name": "R&L Boyum",
+					"rating": 5,
+					"review_text": "Layne and his crew did an excellent job and go above and beyond to make sure things are done the right way and to the satisfaction of their clients! My wife and I would highly recommend Master Carpenters for any of your home needs!",
+					"date_posted": "a year ago",
+					"featured": true
+				}
+			},
+			{
+				"id": "review-mary-nelson",
+				"slug": "review-mary-nelson",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Mary Nelson",
+					"rating": 5,
+					"review_text": "Great detail work! Very nice to work with.",
+					"date_posted": "a year ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-wayne-moore",
+				"slug": "review-wayne-moore",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Wayne Moore",
+					"rating": 5,
+					"review_text": "Layne and his crew did an excellent job on our deck rebuild. Their attention to detail was very impressive.",
+					"date_posted": "a year ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-tim-geels",
+				"slug": "review-tim-geels",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Tim Geels",
+					"rating": 5,
+					"review_text": "Great to work with. Work was done as promised. They do good work we love our new composite deck.",
+					"date_posted": "a year ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-matt-olson",
+				"slug": "review-matt-olson",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Matt Olson",
+					"rating": 5,
+					"review_text": "They did a good job with our porch. I was informed by them every step of the way.",
+					"date_posted": "a year ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-amber-stark",
+				"slug": "review-amber-stark",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Amber Layne Stark",
+					"rating": 5,
+					"review_text": "Used for composite decking",
+					"date_posted": "3 years ago",
+					"featured": false
+				}
+			},
+			{
+				"id": "review-carol-welbes",
+				"slug": "review-carol-welbes",
+				"status": "published",
+				"data": {
+					"reviewer_name": "Carol Welbes",
+					"rating": 5,
+					"review_text": "Master Carpenters put a new roof, siding, and windows and doors on my house. It took them less than 3 weeks and the work is phenomenal! The men were friendly and very professional. They kept their work area clean every day. I highly recommend Master Carpenters!",
+					"date_posted": "5 years ago",
+					"featured": false
+				}
+			}
+		]
+	}
+}
