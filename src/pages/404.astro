@@ -7,8 +7,9 @@ import Base from "../layouts/Base.astro";
 		<div class="not-found-code">404</div>
 		<h1>Page not found</h1>
 		<p>The page you're looking for doesn't exist or has been moved.</p>
+		<p class="redirect-notice">Taking you home in <span id="countdown">8</span> seconds…</p>
 		<div class="not-found-actions">
-			<a href="/" class="btn btn-primary btn-lg">Go home</a>
+			<a href="/" class="btn btn-primary btn-lg">Go home now</a>
 			<a href="/contact" class="btn btn-secondary btn-lg">Contact us</a>
 		</div>
 	</div>
@@ -46,6 +47,12 @@ import Base from "../layouts/Base.astro";
 		margin-bottom: var(--spacing-2xl);
 	}
 
+	.redirect-notice {
+		font-size: var(--font-size-sm) !important;
+		opacity: 0.7;
+		margin-top: calc(var(--spacing-md) * -1);
+	}
+
 	.not-found-actions {
 		display: flex;
 		gap: var(--spacing-md);
@@ -67,3 +74,19 @@ import Base from "../layouts/Base.astro";
 		}
 	}
 </style>
+
+<script>
+	// Auto-redirect home after 8 seconds — prevents navigation getting stuck on 404
+	const el = document.getElementById("countdown");
+	if (el) {
+		let t = 8;
+		const iv = setInterval(() => {
+			t--;
+			el.textContent = String(t);
+			if (t <= 0) {
+				clearInterval(iv);
+				window.location.replace("/");
+			}
+		}, 1000);
+	}
+</script>
