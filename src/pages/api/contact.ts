@@ -2,6 +2,52 @@ import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 const WEB3FORMS_KEY = "2d418359-f7b6-45e1-a983-07eda32418f0";
 
+// ── Command Center lead notification ─────────────────────────────────────────
+// After a successful insert we POST a small payload to Command Center's
+// /api/push/notify, signed with HMAC-SHA256 (scheme: v0:{ts}:{body}) using the
+// shared PUSH_NOTIFY_SECRET secret. CC drops it in the desktop bell and fires a
+// phone Web Push. Fire-and-forget — never blocks or fails the submission.
+async function hmacHex(secret: string, msg: string): Promise<string> {
+	const key = await crypto.subtle.importKey(
+		"raw",
+		new TextEncoder().encode(secret),
+		{ name: "HMAC", hash: "SHA-256" },
+		false,
+		["sign"]
+	);
+	const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
+	return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function notifyCommandCenter(lead: { name: string; email: string; message: string }) {
+	const secret = (env as Record<string, string>).PUSH_NOTIFY_SECRET;
+	if (!secret) return; // not configured — skip silently
+	const url =
+		(env as Record<string, string>).CC_NOTIFY_URL ||
+		"https://cc.crweb.design/api/push/notify";
+	try {
+		const ts = Math.floor(Date.now() / 1000);
+		const body = JSON.stringify({
+			name: lead.name,
+			email: lead.email,
+			site: "mastercarpentersllc.com",
+			message: lead.message,
+			ts,
+		});
+		const sig = await hmacHex(secret, `v0:${ts}:${body}`);
+		await fetch(url, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-CC-Signature": `t=${ts},v0=${sig}`,
+			},
+			body,
+		});
+	} catch (_) {
+		// CC unreachable — the submission is already safely in D1; ignore.
+	}
+}
+
 // Generate a ULID-compatible ID
 function makeId(): string {
 	const t = Date.now();
@@ -91,6 +137,17 @@ export const POST: APIRoute = async ({ request }) => {
 		if (!w3data.success) console.warn("Web3Forms notification failed:", w3data);
 	} catch (err) {
 		console.warn("Web3Forms notification error:", err);
+	}
+
+	// 3. Notify Command Center (desktop bell + phone Web Push). Fire-and-forget.
+	try {
+		await notifyCommandCenter({
+			name: name.trim(),
+			email: email.trim(),
+			message: message?.trim() || "",
+		});
+	} catch (err) {
+		console.warn("Command Center notify error:", err);
 	}
 
 	return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
