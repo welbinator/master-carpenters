@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
-const WEB3FORMS_KEY = "2d418359-f7b6-45e1-a983-07eda32418f0";
 
 // ── Command Center lead notification ─────────────────────────────────────────
 // After a successful insert we POST a small payload to Command Center's
@@ -117,29 +116,7 @@ export const POST: APIRoute = async ({ request }) => {
 		return new Response(JSON.stringify({ ok: false, error: `D1 error: ${msg}` }), { status: 500, headers });
 	}
 
-	// 2. Send email notification via Web3Forms (non-fatal)
-	try {
-		const w3res = await fetch("https://api.web3forms.com/submit", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				access_key: WEB3FORMS_KEY,
-				subject: `New contact form submission from ${name}`,
-				from_name: "Master Carpenters Website",
-				name,
-				email,
-				phone: phone || "Not provided",
-				project: project || "Not specified",
-				message: message || "No message",
-			}),
-		});
-		const w3data = (await w3res.json()) as { success: boolean };
-		if (!w3data.success) console.warn("Web3Forms notification failed:", w3data);
-	} catch (err) {
-		console.warn("Web3Forms notification error:", err);
-	}
-
-	// 3. Notify Command Center (desktop bell + phone Web Push). Fire-and-forget.
+	// 2. Notify Command Center (desktop bell + phone Web Push). Fire-and-forget.
 	try {
 		await notifyCommandCenter({
 			name: name.trim(),
