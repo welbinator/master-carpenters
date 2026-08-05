@@ -43,8 +43,9 @@ type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
 					const storageKey = img?.meta?.storageKey;
 					if (!storageKey) return null;
 					const imgUrl = `/_emdash/api/media/file/${storageKey}`;
-					const thumb400 = `/_emdash/api/media/file/${storageKey}-400.webp`;
-					const thumb800 = `/_emdash/api/media/file/${storageKey}-800.webp`;
+					const keyBase = storageKey.replace(/\.webp$/i, "");
+					const thumb400 = `/_emdash/api/media/file/${keyBase}-400.webp`;
+					const thumb800 = `/_emdash/api/media/file/${keyBase}-800.webp`;
 					return (
 						<button
 							type="button"
