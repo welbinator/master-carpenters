@@ -43,6 +43,8 @@ type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
 					const storageKey = img?.meta?.storageKey;
 					if (!storageKey) return null;
 					const imgUrl = `/_emdash/api/media/file/${storageKey}`;
+					const thumb400 = `/_emdash/api/media/file/${storageKey}-400.webp`;
+					const thumb800 = `/_emdash/api/media/file/${storageKey}-800.webp`;
 					return (
 						<button
 							type="button"
@@ -53,7 +55,11 @@ type EmDashImage = { meta?: { storageKey?: string }; filename?: string } | null;
 							aria-label={`View ${photo.data.caption as string || "photo"} full size`}
 						>
 							<img
-								src={imgUrl}
+								src={thumb400}
+								srcset={`${thumb400} 400w, ${thumb800} 800w`}
+								sizes="(max-width: 540px) 100vw, (max-width: 900px) 50vw, 33vw"
+								width="400"
+								height="300"
 								alt={photo.data.caption as string || "Master Carpenters project photo"}
 								loading="lazy"
 								decoding="async"
