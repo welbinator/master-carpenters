@@ -25,6 +25,13 @@ const secondaryCta =
 		: undefined;
 
 const heroImage = node.imageUrl || "/_emdash/api/media/file/01KX1MWHZ378ZBPYR93FFAS709.webp";
+
+// Build a responsive srcset from the default hero asset (skip if a custom imageUrl is set).
+const isDefaultHero = !node.imageUrl;
+const base = "/_emdash/api/media/file/01KX1MWHZ378ZBPYR93FFAS709";
+const heroSrcset = isDefaultHero
+	? `${base}-600.webp 600w, ${base}-800.webp 800w, ${base}-1200.webp 1200w`
+	: undefined;
 ---
 
 <section class:list={["hero-section", { "hero-centered": centered }]}>
@@ -32,6 +39,10 @@ const heroImage = node.imageUrl || "/_emdash/api/media/file/01KX1MWHZ378ZBPYR93F
 	<div class="hero-bg">
 		<img
 			src={heroImage}
+			srcset={heroSrcset}
+			sizes="100vw"
+			width="1200"
+			height="800"
 			alt="Master Carpenters deck and exterior work"
 			class="hero-bg-img"
 			loading="eager"
