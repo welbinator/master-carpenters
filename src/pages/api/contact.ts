@@ -17,6 +17,17 @@ const SPAM_KEYWORDS = [
 	"loan offer",
 	"weight loss",
 	"buy followers",
+	// Cold-outreach / agency spam selling TO the site owner (not inquiring)
+	"branding refresh",
+	"could benefit from",
+	"we can help elevate",
+	"elevate your visual",
+	"online visibility",
+	"backend analysis",
+	"not appearing on google",
+	"digital marketing agency",
+	"grow your online",
+	"our team would be happy",
 ];
 
 function scoreSpam(input: {
@@ -45,6 +56,15 @@ function scoreSpam(input: {
 	// 5. Name equals email (common bot fill).
 	if (input.email && nameBlob.replace(/\s/g, "") === input.email.toLowerCase()) {
 		reasons.push("name=email");
+	}
+
+	// 6. Cold outreach selling marketing/branding/SEO *to* the business.
+	//    Real clients ask about carpentry; spammers pitch their own services.
+	if (
+		/\b(we can help|our (team|agency)|i can help)\b/i.test(input.message) &&
+		/\b(branding|seo|marketing|visibility|ranking|leads|web design)\b/i.test(input.message)
+	) {
+		reasons.push("cold-outreach");
 	}
 
 	return { spam: reasons.length > 0, reason: reasons.join(",") };
