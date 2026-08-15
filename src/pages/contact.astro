@@ -91,6 +91,11 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 						<label for="message">Tell us more</label>
 						<textarea id="message" name="message" rows="5" placeholder="Describe your project, location, timeline, or any questions you have."></textarea>
 					</div>
+					<!-- Honeypot: hidden from real users; bots that fill it get stored as spam in CC -->
+					<div class="hp-field" aria-hidden="true">
+						<label for="website_hp">Website</label>
+						<input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off" />
+					</div>
 					<div class="form-status" id="form-status" aria-live="polite"></div>
 					<button type="submit" class="btn btn-primary btn-lg submit-btn" id="submit-btn">Send Message</button>
 				</form>
@@ -257,6 +262,15 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 		opacity: 0.65;
 		cursor: not-allowed;
 	}
+	/* Honeypot — visually hidden, still in DOM for bots that auto-fill */
+	.hp-field {
+		position: absolute;
+		left: -10000px;
+		top: auto;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+	}
 </style>
 
 <script>
@@ -275,6 +289,8 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 			phone: (form.querySelector<HTMLInputElement>("#phone"))?.value.trim() || "",
 			project: (form.querySelector<HTMLSelectElement>("#project"))?.value || "",
 			message: (form.querySelector<HTMLTextAreaElement>("#message"))?.value.trim() || "",
+			// Honeypot — real browsers leave this empty; bots often fill it.
+			website_hp: (form.querySelector<HTMLInputElement>("#website_hp"))?.value || "",
 		};
 
 		if (!data.name || !data.email) {

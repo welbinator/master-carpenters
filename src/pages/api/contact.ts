@@ -1,8 +1,57 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 
+// ── Spam scoring (same heuristics as Apex Branding Worker) ───────────────────
+// Runs at ingest, zero external calls. Manual override lives in Command Center.
+const SPAM_KEYWORDS = [
+	"viagra",
+	"cialis",
+	"casino",
+	"porn",
+	"crypto pump",
+	"forex",
+	"bitcoin doubler",
+	"seo services",
+	"guest post",
+	"backlink",
+	"loan offer",
+	"weight loss",
+	"buy followers",
+];
+
+function scoreSpam(input: {
+	message: string;
+	name: string;
+	email: string;
+}): { spam: boolean; reason: string } {
+	const reasons: string[] = [];
+	const body = `${input.message}`.toLowerCase();
+	const nameBlob = `${input.name}`.toLowerCase();
+
+	// 1. Link stuffing — genuine contact messages rarely carry several URLs.
+	const linkCount = (body.match(/https?:\/\/|www\.|\[url|<a\s/gi) || []).length;
+	if (linkCount >= 3) reasons.push(`links:${linkCount}`);
+
+	// 2. Known spam keywords.
+	const hitKw = SPAM_KEYWORDS.filter((k) => body.includes(k));
+	if (hitKw.length) reasons.push(`kw:${hitKw.slice(0, 3).join("/")}`);
+
+	// 3. BBCode / raw anchor markup — a bot fingerprint.
+	if (/\[url=|\[link=|<a\s+href/i.test(input.message)) reasons.push("markup");
+
+	// 4. Cyrillic / CJK in name field on an English-only form.
+	if (/[\u0400-\u04FF\u4E00-\u9FFF]/.test(nameBlob)) reasons.push("nonlatin-name");
+
+	// 5. Name equals email (common bot fill).
+	if (input.email && nameBlob.replace(/\s/g, "") === input.email.toLowerCase()) {
+		reasons.push("name=email");
+	}
+
+	return { spam: reasons.length > 0, reason: reasons.join(",") };
+}
+
 // ── Command Center lead notification ─────────────────────────────────────────
-// After a successful insert we POST a small payload to Command Center's
+// After a successful NON-SPAM insert we POST a small payload to Command Center's
 // /api/push/notify, signed with HMAC-SHA256 (scheme: v0:{ts}:{body}) using the
 // shared PUSH_NOTIFY_SECRET secret. CC drops it in the desktop bell and fires a
 // phone Web Push. Fire-and-forget — never blocks or fails the submission.
@@ -63,6 +112,11 @@ function makeId(): string {
 	return id;
 }
 
+function clean(v: unknown, max: number): string {
+	if (typeof v !== "string") return "";
+	return v.trim().slice(0, max);
+}
+
 export const POST: APIRoute = async ({ request }) => {
 	const headers = { "Content-Type": "application/json" };
 
@@ -77,17 +131,51 @@ export const POST: APIRoute = async ({ request }) => {
 			body = Object.fromEntries([...fd.entries()].map(([k, v]) => [k, String(v)]));
 		}
 	} catch {
-		return new Response(JSON.stringify({ ok: false, error: "Invalid request body" }), { status: 400, headers });
+		return new Response(JSON.stringify({ ok: false, error: "Invalid request body" }), {
+			status: 400,
+			headers,
+		});
 	}
 
-	const { name, email, phone, project, message } = body;
+	// Honeypot: real users leave this blank. A filled honeypot is almost certainly
+	// a bot — store it flagged as spam (so it surfaces under the spam filter in
+	// Command Center) rather than silently dropping it.
+	const honeypotTripped = !!clean(body.website_hp, 200);
 
-	// Validate required fields
-	if (!name?.trim() || !email?.trim()) {
-		return new Response(JSON.stringify({ ok: false, error: "Name and email are required" }), { status: 422, headers });
+	const name = clean(body.name, 120);
+	const email = clean(body.email, 254);
+	const phone = clean(body.phone, 40);
+	const project = clean(body.project, 80);
+	const message = clean(body.message, 5000);
+
+	// Validate required fields (skip for honeypot so we still store the attempt)
+	if (!honeypotTripped) {
+		if (!name || !email) {
+			return new Response(
+				JSON.stringify({ ok: false, error: "Name and email are required" }),
+				{ status: 422, headers }
+			);
+		}
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+			return new Response(JSON.stringify({ ok: false, error: "Invalid email address" }), {
+				status: 422,
+				headers,
+			});
+		}
 	}
-	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-		return new Response(JSON.stringify({ ok: false, error: "Invalid email address" }), { status: 422, headers });
+
+	// Heuristic spam scoring (honeypot is an automatic, definitive flag).
+	let is_spam = 0;
+	let spam_reason: string | null = null;
+	if (honeypotTripped) {
+		is_spam = 1;
+		spam_reason = "honeypot";
+	} else {
+		const s = scoreSpam({ message, name, email });
+		if (s.spam) {
+			is_spam = 1;
+			spam_reason = s.reason;
+		}
 	}
 
 	// 1. Save to D1
@@ -95,7 +183,13 @@ export const POST: APIRoute = async ({ request }) => {
 		const db = env.DB;
 
 		if (!db) {
-			return new Response(JSON.stringify({ ok: false, error: "DB binding not available — check Cloudflare Pages bindings" }), { status: 500, headers });
+			return new Response(
+				JSON.stringify({
+					ok: false,
+					error: "DB binding not available — check Cloudflare Pages bindings",
+				}),
+				{ status: 500, headers }
+			);
 		}
 
 		const id = makeId();
@@ -105,27 +199,48 @@ export const POST: APIRoute = async ({ request }) => {
 		await db
 			.prepare(
 				`INSERT INTO ec_contact_submissions
-					(id, slug, status, created_at, updated_at, published_at, version, locale, translation_group, name, email, phone, project, message)
-				VALUES (?, ?, 'published', ?, ?, ?, 1, 'en', ?, ?, ?, ?, ?, ?)`
+					(id, slug, status, created_at, updated_at, published_at, version, locale, translation_group,
+					 name, email, phone, project, message, is_spam, spam_reason)
+				VALUES (?, ?, 'published', ?, ?, ?, 1, 'en', ?, ?, ?, ?, ?, ?, ?, ?)`
 			)
-			.bind(id, slug, now, now, now, id, name.trim(), email.trim(), phone?.trim() || "", project || "", message?.trim() || "")
+			.bind(
+				id,
+				slug,
+				now,
+				now,
+				now,
+				id,
+				name || "(honeypot)",
+				email || "",
+				phone || "",
+				project || "",
+				message || "",
+				is_spam,
+				spam_reason
+			)
 			.run();
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		console.error("D1 save error:", msg);
-		return new Response(JSON.stringify({ ok: false, error: `D1 error: ${msg}` }), { status: 500, headers });
-	}
-
-	// 2. Notify Command Center (desktop bell + phone Web Push). Fire-and-forget.
-	try {
-		await notifyCommandCenter({
-			name: name.trim(),
-			email: email.trim(),
-			message: message?.trim() || "",
+		return new Response(JSON.stringify({ ok: false, error: `D1 error: ${msg}` }), {
+			status: 500,
+			headers,
 		});
-	} catch (err) {
-		console.warn("Command Center notify error:", err);
 	}
 
+	// 2. Notify Command Center only for genuine (non-spam) leads. Fire-and-forget.
+	if (!is_spam) {
+		try {
+			await notifyCommandCenter({
+				name: name || "",
+				email: email || "",
+				message: message || "",
+			});
+		} catch (err) {
+			console.warn("Command Center notify error:", err);
+		}
+	}
+
+	// Always return ok to bots so they don't retry; real users get the same success UX.
 	return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 };
