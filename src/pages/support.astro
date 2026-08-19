@@ -98,22 +98,39 @@ import { withBase } from "../lib/base";
 						</div>
 						<div id="thread-messages" class="thread-messages" aria-live="polite"></div>
 											<div id="thread-preview" class="thread-preview hidden" hidden>
-												<div class="thread-preview-inner">
-													<p class="thread-preview-kicker">Preview ready</p>
-													<p class="thread-preview-copy">
-														Review the staging site. If everything looks good, approve it and we’ll push the changes live.
-													</p>
-													<p class="thread-preview-link-wrap">
-														<a id="thread-staging-link" class="btn btn-secondary" href="#" target="_blank" rel="noopener">Open preview</a>
-													</p>
-													<div class="form-status" id="approve-status" aria-live="polite"></div>
-													<button type="button" class="btn btn-primary btn-lg" id="approve-btn">I approve these changes</button>
-												</div>
-											</div>
-											<div id="thread-approved" class="thread-approved hidden" hidden>
-												<p><strong>You approved this preview.</strong> We’ll push it live next and update this thread when it’s done.</p>
-											</div>
-											<form id="reply-form" class="support-form reply-form" novalidate>
+																	<div class="thread-preview-inner">
+																		<p class="thread-preview-kicker">Preview ready</p>
+																		<p class="thread-preview-copy">
+																			Review the staging site. If everything looks good, approve it and we’ll push the changes live.
+																			If something’s off, request changes and tell us what to fix.
+																		</p>
+																		<p class="thread-preview-link-wrap">
+																			<a id="thread-staging-link" class="btn btn-secondary" href="#" target="_blank" rel="noopener">Open preview</a>
+																		</p>
+																		<div class="form-status" id="approve-status" aria-live="polite"></div>
+																		<div class="thread-preview-actions" id="preview-actions">
+																			<button type="button" class="btn btn-primary btn-lg" id="approve-btn">I approve these changes</button>
+																			<button type="button" class="btn btn-secondary btn-lg" id="disapprove-btn">Request changes</button>
+																		</div>
+																		<div id="disapprove-form" class="disapprove-form hidden" hidden>
+																			<div class="form-field">
+																				<label for="disapprove-reason">What didn’t you like? What should we change?</label>
+																				<textarea id="disapprove-reason" rows="4" maxlength="8000" placeholder="Be specific if you can — page, text, photo, layout…"></textarea>
+																			</div>
+																			<div class="disapprove-form-actions">
+																				<button type="button" class="btn btn-primary" id="disapprove-submit">Send feedback</button>
+																				<button type="button" class="btn btn-ghost" id="disapprove-cancel">Cancel</button>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																<div id="thread-approved" class="thread-approved hidden" hidden>
+																	<p><strong>You approved this preview.</strong> We’ll push it live next and update this thread when it’s done.</p>
+																</div>
+																<div id="thread-changes" class="thread-changes hidden" hidden>
+																	<p><strong>You requested changes.</strong> We’ll update the preview and let you know when it’s ready to review again.</p>
+																</div>
+																<form id="reply-form" class="support-form reply-form" novalidate>
 							<div class="form-field">
 								<label for="reply-body">Your reply</label>
 								<textarea id="reply-body" rows="4" maxlength="8000" required placeholder="Add more detail or answer a question…"></textarea>
@@ -367,7 +384,28 @@ import { withBase } from "../lib/base";
 		font-size: var(--font-size-sm);
 	}
 	.thread-preview-link-wrap { margin: 0 0 var(--spacing-md); }
-	.thread-preview #approve-btn { width: 100%; max-width: 320px; }
+	.thread-preview-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		align-items: center;
+	}
+	.thread-preview-actions .btn { max-width: none; }
+	.thread-preview #approve-btn,
+	.thread-preview #disapprove-btn { width: auto; min-width: 11rem; }
+	.disapprove-form {
+		margin-top: var(--spacing-md);
+		padding-top: var(--spacing-md);
+		border-top: 1px solid color-mix(in srgb, var(--color-brand) 20%, var(--color-border));
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-md);
+	}
+	.disapprove-form-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+	}
 	.thread-approved {
 		margin: 0 0 var(--spacing-xl);
 		padding: var(--spacing-md) var(--spacing-lg);
@@ -379,6 +417,21 @@ import { withBase } from "../lib/base";
 		line-height: 1.5;
 	}
 	.thread-approved p { margin: 0; }
+	.thread-changes {
+		margin: 0 0 var(--spacing-xl);
+		padding: var(--spacing-md) var(--spacing-lg);
+		border-radius: var(--radius);
+		border: 1px solid color-mix(in srgb, #f59e0b 40%, var(--color-border));
+		background: color-mix(in srgb, #f59e0b 12%, var(--color-bg));
+		color: #b45309;
+		font-size: var(--font-size-sm);
+		line-height: 1.5;
+	}
+	.thread-changes p { margin: 0; }
+	:global(.ticket-status.is-changes_requested) {
+		background: color-mix(in srgb, #f59e0b 16%, transparent);
+		color: #b45309;
+	}
 	.reply-form { border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg); }
 	.hidden { display: none !important; }
 </style>
@@ -412,8 +465,15 @@ import { withBase } from "../lib/base";
 		threadMessages: document.getElementById("thread-messages") as HTMLElement,
 		threadPreview: document.getElementById("thread-preview") as HTMLElement,
 		threadApproved: document.getElementById("thread-approved") as HTMLElement,
+		threadChanges: document.getElementById("thread-changes") as HTMLElement,
 		stagingLink: document.getElementById("thread-staging-link") as HTMLAnchorElement,
 		approveBtn: document.getElementById("approve-btn") as HTMLButtonElement,
+		disapproveBtn: document.getElementById("disapprove-btn") as HTMLButtonElement,
+		disapproveForm: document.getElementById("disapprove-form") as HTMLElement,
+		disapproveReason: document.getElementById("disapprove-reason") as HTMLTextAreaElement,
+		disapproveSubmit: document.getElementById("disapprove-submit") as HTMLButtonElement,
+		disapproveCancel: document.getElementById("disapprove-cancel") as HTMLButtonElement,
+		previewActions: document.getElementById("preview-actions") as HTMLElement,
 		approveStatus: document.getElementById("approve-status") as HTMLElement,
 		replyForm: document.getElementById("reply-form") as HTMLFormElement,
 		replyBody: document.getElementById("reply-body") as HTMLTextAreaElement,
@@ -440,6 +500,7 @@ import { withBase } from "../lib/base";
 			in_progress: "In progress",
 			waiting_on_client: "Waiting on you",
 			staging: "Preview ready",
+			changes_requested: "Changes requested",
 			approved: "Approved",
 			done: "Done",
 			closed: "Closed",
@@ -451,14 +512,22 @@ import { withBase } from "../lib/base";
 		const st = String(t?.status || "");
 		const staging = String(t?.staging_url || "").trim();
 		const approved = st === "approved" || !!t?.approved_at;
+		const changes = st === "changes_requested";
+
+		show(el.threadPreview, false);
+		show(el.threadApproved, false);
+		show(el.threadChanges, false);
+		show(el.disapproveForm, false);
+		show(el.previewActions, true);
 
 		if (approved) {
-			show(el.threadPreview, false);
 			show(el.threadApproved, true);
 			return;
 		}
-
-		show(el.threadApproved, false);
+		if (changes) {
+			show(el.threadChanges, true);
+			return;
+		}
 		if (st === "staging") {
 			show(el.threadPreview, true);
 			if (el.stagingLink) {
@@ -475,9 +544,12 @@ import { withBase } from "../lib/base";
 				el.approveBtn.disabled = false;
 				el.approveBtn.textContent = "I approve these changes";
 			}
+			if (el.disapproveBtn) {
+				el.disapproveBtn.disabled = false;
+				el.disapproveBtn.textContent = "Request changes";
+			}
+			if (el.disapproveReason) el.disapproveReason.value = "";
 			if (el.approveStatus) setStatus(el.approveStatus, "", "");
-		} else {
-			show(el.threadPreview, false);
 		}
 	}
 
@@ -567,6 +639,8 @@ import { withBase } from "../lib/base";
 		setStatus(el.replyStatus, "", "");
 		show(el.threadPreview, false);
 		show(el.threadApproved, false);
+		show(el.threadChanges, false);
+		show(el.disapproveForm, false);
 		try {
 			const res = await fetch(api(`/api/support/ticket?id=${encodeURIComponent(id)}`), {
 				credentials: "same-origin",
@@ -577,6 +651,7 @@ import { withBase } from "../lib/base";
 			const messages = data.messages || [];
 			el.threadSubject.textContent = t.subject || "Request";
 			el.threadStatus.textContent = statusLabel(t.status || "new");
+			el.threadStatus.className = `ticket-status is-${String(t.status || "new").replace(/[^a-z0-9_]/gi, "_")}`;
 			el.threadMeta.textContent = [
 				t.page_url ? `Page: ${t.page_url}` : "",
 				t.staging_url ? `Preview available` : "",
@@ -735,6 +810,7 @@ import { withBase } from "../lib/base";
 		if (!confirm("Approve this preview and ask us to push it live?")) return;
 		el.approveBtn.disabled = true;
 		el.approveBtn.textContent = "Approving…";
+		if (el.disapproveBtn) el.disapproveBtn.disabled = true;
 		try {
 			const res = await fetch(api("/api/support/approve"), {
 				method: "POST",
@@ -751,6 +827,57 @@ import { withBase } from "../lib/base";
 			if (el.approveStatus) setStatus(el.approveStatus, "error", msg);
 			el.approveBtn.disabled = false;
 			el.approveBtn.textContent = "I approve these changes";
+			if (el.disapproveBtn) el.disapproveBtn.disabled = false;
+		}
+	});
+
+	el.disapproveBtn?.addEventListener("click", () => {
+		show(el.disapproveForm, true);
+		show(el.previewActions, false);
+		if (el.approveStatus) setStatus(el.approveStatus, "", "");
+		el.disapproveReason?.focus();
+	});
+
+	el.disapproveCancel?.addEventListener("click", () => {
+		show(el.disapproveForm, false);
+		show(el.previewActions, true);
+		if (el.disapproveReason) el.disapproveReason.value = "";
+		if (el.approveStatus) setStatus(el.approveStatus, "", "");
+	});
+
+	el.disapproveSubmit?.addEventListener("click", async () => {
+		if (!activeTicketId) return;
+		const reason = (el.disapproveReason?.value || "").trim();
+		if (el.approveStatus) setStatus(el.approveStatus, "", "");
+		if (reason.length < 3) {
+			if (el.approveStatus) {
+				setStatus(el.approveStatus, "error", "Please explain what you’d like changed.");
+			}
+			return;
+		}
+		if (el.disapproveSubmit) {
+			el.disapproveSubmit.disabled = true;
+			el.disapproveSubmit.textContent = "Sending…";
+		}
+		try {
+			const res = await fetch(api("/api/support/disapprove"), {
+				method: "POST",
+				credentials: "same-origin",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ ticket_id: activeTicketId, reason }),
+			});
+			const data = await res.json();
+			if (!res.ok || !data.ok) throw new Error(data.error || "Could not send feedback");
+			if (el.approveStatus) setStatus(el.approveStatus, "success", "Feedback sent — we’ll revise the preview.");
+			await openThread(activeTicketId);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Could not send feedback";
+			if (el.approveStatus) setStatus(el.approveStatus, "error", msg);
+		} finally {
+			if (el.disapproveSubmit) {
+				el.disapproveSubmit.disabled = false;
+				el.disapproveSubmit.textContent = "Send feedback";
+			}
 		}
 	});
 

@@ -139,3 +139,37 @@ export async function notifySupportApproval(msg: SupportApprovalNotify): Promise
 		approved_at: msg.approved_at,
 	});
 }
+
+export type SupportDisapprovalNotify = {
+	ticket_id: string;
+	message_id: string;
+	site_id: string;
+	site: string;
+	subject?: string;
+	body: string;
+	reason: string;
+	staging_url?: string;
+	user_email: string;
+	user_name: string;
+	created_at: string;
+};
+
+/** Fire-and-forget client disapproval webhook to Command Center. */
+export async function notifySupportDisapproval(msg: SupportDisapprovalNotify): Promise<void> {
+	await postSigned({
+		type: "disapproval",
+		ticket_id: msg.ticket_id,
+		message_id: msg.message_id,
+		site_id: msg.site_id,
+		site: msg.site,
+		subject: msg.subject || "",
+		body: msg.body,
+		message: msg.body,
+		reason: msg.reason,
+		staging_url: msg.staging_url || "",
+		status: "changes_requested",
+		user_email: msg.user_email,
+		user_name: msg.user_name,
+		created_at: msg.created_at,
+	});
+}
