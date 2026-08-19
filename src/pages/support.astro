@@ -1,0 +1,400 @@
+---
+import Base from "../layouts/Base.astro";
+import { withBase } from "../lib/base";
+---
+
+<Base
+	title="Client Support"
+	description="Private client support portal."
+	noindex={true}
+>
+	<section class="support-section section">
+		<div class="container support-wrap">
+			<div class="support-header">
+				<p class="support-kicker">Client portal</p>
+				<h1>Website support</h1>
+				<p class="support-intro">
+					Log in to request website changes and see the status of previous requests.
+					This page is private — accounts are created by your web team.
+				</p>
+			</div>
+
+			<!-- Loading -->
+			<div id="support-loading" class="support-card">
+				<p>Checking your session…</p>
+			</div>
+
+			<!-- Login -->
+			<div id="support-login" class="support-card hidden" hidden>
+				<h2>Log in</h2>
+				<p class="support-muted">Use the email and password we gave you. There’s no public sign-up.</p>
+				<form id="login-form" class="support-form" novalidate>
+					<div class="form-field">
+						<label for="login-email">Email</label>
+						<input type="email" id="login-email" name="email" required autocomplete="username" placeholder="you@example.com" />
+					</div>
+					<div class="form-field">
+						<label for="login-password">Password</label>
+						<input type="password" id="login-password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+					</div>
+					<div class="form-status" id="login-status" aria-live="polite"></div>
+					<button type="submit" class="btn btn-primary btn-lg" id="login-btn">Log in</button>
+				</form>
+			</div>
+
+			<!-- Dashboard -->
+			<div id="support-dash" class="hidden" hidden>
+				<div class="support-userbar">
+					<div>
+						<p class="support-hello">Signed in as <strong id="user-label">—</strong></p>
+					</div>
+					<button type="button" class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
+				</div>
+
+				<div class="support-grid">
+					<div class="support-card">
+						<h2>New request</h2>
+						<p class="support-muted">Describe the change you need. We’ll review it and follow up with a preview when ready.</p>
+						<form id="ticket-form" class="support-form" novalidate
+							data-api={withBase("/api/support/tickets")}
+						>
+							<div class="form-field">
+								<label for="ticket-subject">Subject</label>
+								<input type="text" id="ticket-subject" name="subject" required maxlength="200" placeholder="e.g. Update homepage phone number" />
+							</div>
+							<div class="form-field">
+								<label for="ticket-page">Page URL <span class="optional">(optional)</span></label>
+								<input type="url" id="ticket-page" name="page_url" maxlength="500" placeholder="https://mastercarpentersllc.com/gallery" />
+							</div>
+							<div class="form-field">
+								<label for="ticket-message">What do you need?</label>
+								<textarea id="ticket-message" name="message" required rows="6" maxlength="8000" placeholder="Tell us exactly what should change. Include wording, photos, or links if helpful."></textarea>
+							</div>
+							<div class="form-status" id="ticket-status" aria-live="polite"></div>
+							<button type="submit" class="btn btn-primary btn-lg" id="ticket-btn">Submit request</button>
+						</form>
+					</div>
+
+					<div class="support-card">
+						<div class="support-list-head">
+							<h2>Your requests</h2>
+							<button type="button" class="btn btn-ghost btn-sm" id="refresh-tickets">↻ Refresh</button>
+						</div>
+						<div id="tickets-empty" class="support-empty hidden" hidden>
+							No requests yet. Submit one on the left when you need a change.
+						</div>
+						<ul id="tickets-list" class="tickets-list"></ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.support-section { padding-top: var(--spacing-3xl); padding-bottom: var(--spacing-5xl); }
+	.support-wrap { max-width: 980px; }
+	.support-header { margin-bottom: var(--spacing-2xl); }
+	.support-kicker {
+		font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: 0.08em;
+		font-weight: 700; color: var(--color-brand); margin-bottom: var(--spacing-sm);
+	}
+	.support-header h1 {
+		font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: var(--font-weight-display);
+		margin-bottom: var(--spacing-sm);
+	}
+	.support-intro, .support-muted {
+		color: var(--color-muted); line-height: 1.6; font-size: var(--font-size-base);
+	}
+	.support-muted { margin-bottom: var(--spacing-lg); }
+	.optional { font-weight: 500; color: var(--color-muted); text-transform: none; letter-spacing: 0; }
+	.support-card {
+		background: var(--color-surface); border: 1px solid var(--color-border);
+		border-radius: calc(var(--radius) + 4px); padding: var(--spacing-xl);
+	}
+	.support-card h2 {
+		font-size: var(--font-size-xl); font-weight: var(--font-weight-heading);
+		margin-bottom: var(--spacing-sm);
+	}
+	.support-userbar {
+		display: flex; justify-content: space-between; align-items: center;
+		gap: var(--spacing-md); margin-bottom: var(--spacing-lg); flex-wrap: wrap;
+	}
+	.support-hello { color: var(--color-muted); font-size: var(--font-size-sm); }
+	.support-grid {
+		display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--spacing-xl);
+		align-items: start;
+	}
+	@media (max-width: 860px) {
+		.support-grid { grid-template-columns: 1fr; }
+	}
+	.support-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+	.form-field { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+	.form-field label { font-size: var(--font-size-sm); font-weight: 600; }
+	.form-field input, .form-field textarea {
+		font-family: var(--font-body); font-size: var(--font-size-base);
+		padding: var(--spacing-sm) var(--spacing-md); background: var(--color-bg);
+		border: 1px solid var(--color-border); border-radius: var(--radius);
+		color: var(--color-text); width: 100%;
+	}
+	.form-field input:focus, .form-field textarea:focus {
+		outline: none; border-color: var(--color-brand);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 15%, transparent);
+	}
+	.form-field textarea { resize: vertical; min-height: 140px; }
+	.form-status { display: none; padding: var(--spacing-md); border-radius: var(--radius); font-size: var(--font-size-sm); font-weight: 500; }
+	.form-status.success {
+		display: block; background: color-mix(in srgb, #22c55e 12%, transparent);
+		border: 1px solid color-mix(in srgb, #22c55e 30%, transparent); color: #15803d;
+	}
+	.form-status.error {
+		display: block; background: color-mix(in srgb, #ef4444 12%, transparent);
+		border: 1px solid color-mix(in srgb, #ef4444 30%, transparent); color: #b91c1c;
+	}
+	.btn:disabled { opacity: 0.65; cursor: not-allowed; }
+	.btn-sm { padding: 0.45rem 0.8rem; font-size: var(--font-size-sm); }
+	.btn-ghost {
+		background: transparent; border: 1px solid var(--color-border); color: var(--color-text);
+		border-radius: var(--radius); cursor: pointer;
+	}
+	.support-list-head {
+		display: flex; justify-content: space-between; align-items: center;
+		gap: var(--spacing-md); margin-bottom: var(--spacing-md);
+	}
+	.support-list-head h2 { margin-bottom: 0; }
+	.support-empty { color: var(--color-muted); font-size: var(--font-size-sm); padding: var(--spacing-md) 0; }
+	.tickets-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--spacing-md); }
+	.ticket-item {
+		border: 1px solid var(--color-border); border-radius: var(--radius);
+		padding: var(--spacing-md); background: var(--color-bg);
+	}
+	.ticket-top {
+		display: flex; justify-content: space-between; gap: var(--spacing-sm);
+		align-items: flex-start; margin-bottom: 0.35rem;
+	}
+	.ticket-subject { font-weight: 700; font-size: var(--font-size-base); }
+	.ticket-status {
+		font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+		padding: 0.2rem 0.5rem; border-radius: 999px; white-space: nowrap;
+		background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+		color: var(--color-brand-strong, var(--color-brand));
+	}
+	.ticket-status.is-done, .ticket-status.is-closed {
+		background: color-mix(in srgb, #22c55e 14%, transparent); color: #15803d;
+	}
+	.ticket-status.is-in_progress {
+		background: color-mix(in srgb, #f59e0b 16%, transparent); color: #b45309;
+	}
+	.ticket-meta { font-size: var(--font-size-xs); color: var(--color-muted); margin-bottom: 0.4rem; }
+	.ticket-msg {
+		font-size: var(--font-size-sm); color: var(--color-text); line-height: 1.5;
+		white-space: pre-wrap; word-break: break-word;
+	}
+	.hidden { display: none !important; }
+</style>
+
+<script>
+	const base = (import.meta as any).env?.BASE_URL || "/";
+	const root = (base || "/").replace(/\/$/, "");
+	const api = (path: string) => `${root}${path.startsWith("/") ? path : `/${path}`}`;
+
+	const el = {
+		loading: document.getElementById("support-loading") as HTMLElement,
+		login: document.getElementById("support-login") as HTMLElement,
+		dash: document.getElementById("support-dash") as HTMLElement,
+		userLabel: document.getElementById("user-label") as HTMLElement,
+		loginForm: document.getElementById("login-form") as HTMLFormElement,
+		loginStatus: document.getElementById("login-status") as HTMLElement,
+		loginBtn: document.getElementById("login-btn") as HTMLButtonElement,
+		logoutBtn: document.getElementById("logout-btn") as HTMLButtonElement,
+		ticketForm: document.getElementById("ticket-form") as HTMLFormElement,
+		ticketStatus: document.getElementById("ticket-status") as HTMLElement,
+		ticketBtn: document.getElementById("ticket-btn") as HTMLButtonElement,
+		ticketsList: document.getElementById("tickets-list") as HTMLElement,
+		ticketsEmpty: document.getElementById("tickets-empty") as HTMLElement,
+		refreshBtn: document.getElementById("refresh-tickets") as HTMLButtonElement,
+	};
+
+	function show(node: HTMLElement | null, on: boolean) {
+		if (!node) return;
+		node.hidden = !on;
+		node.classList.toggle("hidden", !on);
+	}
+
+	function setStatus(node: HTMLElement, kind: "" | "success" | "error", text: string) {
+		node.textContent = text;
+		node.className = kind ? `form-status ${kind}` : "form-status";
+	}
+
+	function statusLabel(s: string) {
+		const map: Record<string, string> = {
+			new: "New",
+			in_progress: "In progress",
+			waiting_on_client: "Waiting on you",
+			staging: "Preview ready",
+			done: "Done",
+			closed: "Closed",
+		};
+		return map[s] || s || "New";
+	}
+
+	function esc(s: string) {
+		return String(s || "")
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;");
+	}
+
+	function fmtDate(v: string) {
+		if (!v) return "—";
+		const d = new Date(v);
+		if (isNaN(d.getTime())) return v;
+		return d.toLocaleString(undefined, {
+			month: "short",
+			day: "numeric",
+			year: "numeric",
+			hour: "numeric",
+			minute: "2-digit",
+		});
+	}
+
+	async function loadMe() {
+		const res = await fetch(api("/api/support/me"), { credentials: "same-origin" });
+		if (!res.ok) return null;
+		const data = await res.json();
+		return data.user || null;
+	}
+
+	async function loadTickets() {
+		el.ticketsList.innerHTML = `<li class="support-muted">Loading…</li>`;
+		show(el.ticketsEmpty, false);
+		try {
+			const res = await fetch(api("/api/support/tickets"), { credentials: "same-origin" });
+			const data = await res.json();
+			if (!res.ok || !data.ok) throw new Error(data.error || "Failed to load");
+			const tickets = data.tickets || [];
+			if (!tickets.length) {
+				el.ticketsList.innerHTML = "";
+				show(el.ticketsEmpty, true);
+				return;
+			}
+			show(el.ticketsEmpty, false);
+			el.ticketsList.innerHTML = tickets
+				.map((t: any) => {
+					const st = String(t.status || "new");
+					return `<li class="ticket-item">
+						<div class="ticket-top">
+							<div class="ticket-subject">${esc(t.subject || "Request")}</div>
+							<span class="ticket-status is-${esc(st)}">${esc(statusLabel(st))}</span>
+						</div>
+						<div class="ticket-meta">${esc(fmtDate(t.created_at))}${t.page_url ? ` · ${esc(t.page_url)}` : ""}</div>
+						<div class="ticket-msg">${esc(t.message || "")}</div>
+					</li>`;
+				})
+				.join("");
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Failed to load";
+			el.ticketsList.innerHTML = `<li class="form-status error" style="display:block">${esc(msg)}</li>`;
+		}
+	}
+
+	function showLogin() {
+		show(el.loading, false);
+		show(el.dash, false);
+		show(el.login, true);
+	}
+
+	function showDash(user: { email: string; name?: string }) {
+		show(el.loading, false);
+		show(el.login, false);
+		show(el.dash, true);
+		el.userLabel.textContent = user.name ? `${user.name} (${user.email})` : user.email;
+		loadTickets();
+	}
+
+	el.loginForm?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		setStatus(el.loginStatus, "", "");
+		const email = (document.getElementById("login-email") as HTMLInputElement).value.trim();
+		const password = (document.getElementById("login-password") as HTMLInputElement).value;
+		if (!email || !password) {
+			setStatus(el.loginStatus, "error", "Enter your email and password.");
+			return;
+		}
+		el.loginBtn.disabled = true;
+		el.loginBtn.textContent = "Logging in…";
+		try {
+			const res = await fetch(api("/api/support/login"), {
+				method: "POST",
+				credentials: "same-origin",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email, password }),
+			});
+			const data = await res.json();
+			if (!res.ok || !data.ok) throw new Error(data.error || "Login failed");
+			showDash(data.user);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Login failed";
+			setStatus(el.loginStatus, "error", msg);
+			el.loginBtn.disabled = false;
+			el.loginBtn.textContent = "Log in";
+		}
+	});
+
+	el.logoutBtn?.addEventListener("click", async () => {
+		await fetch(api("/api/support/logout"), { method: "POST", credentials: "same-origin" });
+		el.loginForm.reset();
+		el.loginBtn.disabled = false;
+		el.loginBtn.textContent = "Log in";
+		setStatus(el.loginStatus, "", "");
+		showLogin();
+	});
+
+	el.ticketForm?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		setStatus(el.ticketStatus, "", "");
+		const subject = (document.getElementById("ticket-subject") as HTMLInputElement).value.trim();
+		const message = (document.getElementById("ticket-message") as HTMLTextAreaElement).value.trim();
+		const page_url = (document.getElementById("ticket-page") as HTMLInputElement).value.trim();
+		if (!subject || !message) {
+			setStatus(el.ticketStatus, "error", "Subject and details are required.");
+			return;
+		}
+		el.ticketBtn.disabled = true;
+		el.ticketBtn.textContent = "Submitting…";
+		try {
+			const res = await fetch(api("/api/support/tickets"), {
+				method: "POST",
+				credentials: "same-origin",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ subject, message, page_url }),
+			});
+			const data = await res.json();
+			if (!res.ok || !data.ok) throw new Error(data.error || "Could not submit");
+			el.ticketForm.reset();
+			setStatus(el.ticketStatus, "success", "Request submitted. We’ll take it from here.");
+			el.ticketBtn.disabled = false;
+			el.ticketBtn.textContent = "Submit request";
+			await loadTickets();
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Could not submit";
+			setStatus(el.ticketStatus, "error", msg);
+			el.ticketBtn.disabled = false;
+			el.ticketBtn.textContent = "Submit request";
+		}
+	});
+
+	el.refreshBtn?.addEventListener("click", () => loadTickets());
+
+	// Boot
+	(async () => {
+		try {
+			const user = await loadMe();
+			if (user) showDash(user);
+			else showLogin();
+		} catch {
+			showLogin();
+		}
+	})();
+</script>

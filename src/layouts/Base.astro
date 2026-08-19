@@ -9,9 +9,11 @@ interface Props {
 	title?: string;
 	description?: string;
 	image?: string;
+	/** Private pages (client support portal) — never index, skip analytics. */
+	noindex?: boolean;
 }
 
-const { title, description, image } = Astro.props;
+const { title, description, image, noindex = false } = Astro.props;
 const siteTitle = site.title;
 const fullTitle = title ? `${title} — ${siteTitle}` : siteTitle;
 const siteDescription = description || site.tagline;
@@ -25,13 +27,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{fullTitle}</title>
 		<meta name="description" content={siteDescription} />
-		<link rel="canonical" href={canonical} />
-		<meta property="og:title" content={fullTitle} />
-		<meta property="og:description" content={siteDescription} />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content={canonical} />
-		{image && <meta property="og:image" content={image} />}
-		<meta name="twitter:card" content="summary_large_image" />
+		{noindex ? (
+			<meta name="robots" content="noindex, nofollow" />
+		) : (
+			<link rel="canonical" href={canonical} />
+		)}
+		{!noindex && (
+			<>
+				<meta property="og:title" content={fullTitle} />
+				<meta property="og:description" content={siteDescription} />
+				<meta property="og:type" content="website" />
+				<meta property="og:url" content={canonical} />
+				{image && <meta property="og:image" content={image} />}
+				<meta name="twitter:card" content="summary_large_image" />
+			</>
+		)}
 		<Font cssVariable="--font-body" preload />
 		<script is:inline>
 			(function () {
@@ -43,14 +53,18 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 				}
 			})();
 		</script>
-		<!-- Google tag (gtag.js) -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=G-X8NNHK5HKG"></script>
-		<script is:inline>
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
-			gtag('config', 'G-X8NNHK5HKG');
-		</script>
+		{!noindex && (
+			<>
+				<!-- Google tag (gtag.js) -->
+				<script async src="https://www.googletagmanager.com/gtag/js?id=G-X8NNHK5HKG"></script>
+				<script is:inline>
+					window.dataLayer = window.dataLayer || [];
+					function gtag(){dataLayer.push(arguments);}
+					gtag('js', new Date());
+					gtag('config', 'G-X8NNHK5HKG');
+				</script>
+			</>
+		)}
 	</head>
 	<body>
 		<header class="site-header">
