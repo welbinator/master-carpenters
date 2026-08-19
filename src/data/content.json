@@ -1,0 +1,273 @@
+{
+  "hero": {
+    "headline": "Built Right. Built to Last.",
+    "subheadline": "Master Carpenters delivers expert deck building, siding installation, and exterior work across Cedar Rapids, Iowa. Owner Layne Stark leads every project \u2014 your home gets his personal attention from start to finish.",
+    "primaryCtaLabel": "Get a Free Estimate",
+    "primaryCtaUrl": "/contact",
+    "secondaryCtaLabel": "See Our Work",
+    "secondaryCtaUrl": "/gallery",
+    "image": "/images/01KX1MWHZ378ZBPYR93FFAS709.webp",
+    "srcset": "/images/01KX1MWHZ378ZBPYR93FFAS709-600.webp 600w, /images/01KX1MWHZ378ZBPYR93FFAS709-800.webp 800w, /images/01KX1MWHZ378ZBPYR93FFAS709-1200.webp 1200w"
+  },
+  "features": {
+    "id": "services",
+    "headline": "What We Do",
+    "subheadline": "We focus on what we do best \u2014 exterior work that transforms your home and stands the test of Iowa winters. From custom decks to full siding installations, every project gets Layne\u2019s personal attention and the same craftsmanship he\u2019d put into his own home.",
+    "items": [
+      {
+        "icon": "star",
+        "title": "Deck Building",
+        "description": "Custom composite and wood decks designed for your space and lifestyle. From simple platforms to multi-level entertaining areas, built to last."
+      },
+      {
+        "icon": "shield",
+        "title": "Siding Installation",
+        "description": "New siding that improves your home's curb appeal and weather protection. We work with vinyl, fiber cement, and wood options to fit your budget."
+      },
+      {
+        "icon": "heart",
+        "title": "Windows & Doors",
+        "description": "Replacement windows and doors that improve energy efficiency and give your home a fresh look. Installed cleanly, finished to perfection."
+      },
+      {
+        "icon": "check",
+        "title": "Roofing",
+        "description": "Roof replacements and repairs done right. We use quality materials and take pride in clean, thorough workmanship that protects your home for years."
+      },
+      {
+        "icon": "users",
+        "title": "Porches & Screened Rooms",
+        "description": "Extend your living space outdoors with a custom porch or screened enclosure. Designed to complement your home's existing style."
+      },
+      {
+        "icon": "clock",
+        "title": "On Time. On Budget.",
+        "description": "Clear communication, honest estimates, and no surprises. Layne keeps you informed every step of the way \u2014 that's the Master Carpenters guarantee."
+      }
+    ]
+  },
+  "testimonials": {
+    "headline": "What Our Customers Say",
+    "items": [
+      {
+        "quote": "We love our new deck! It turned out beautiful. They are hard workers and the deck is built to last many years to come.",
+        "author": "Kay Hamilton",
+        "role": "Cedar Rapids, IA",
+        "company": ""
+      },
+      {
+        "quote": "Unbelievably professional craftsmanship. Not only did they do our Trex landing and steps perfectly but they did the landscaping and stained wood under sunroom to match. Amazing job!",
+        "author": "Beth Schulte",
+        "role": "Cedar Rapids, IA",
+        "company": ""
+      },
+      {
+        "quote": "Layne took the time to be very thorough to explain everything from estimates all the way through. He took his time in the planning stage to make sure we were happy with every detail.",
+        "author": "Molly",
+        "role": "Cedar Rapids, IA",
+        "company": ""
+      },
+      {
+        "quote": "Layne and his crew did an excellent job and go above and beyond to make sure things are done the right way and to the satisfaction of their clients!",
+        "author": "R&L Boyum",
+        "role": "Cedar Rapids, IA",
+        "company": ""
+      },
+      {
+        "quote": "Fantastic work! Worked with us to nail down design, swapped out boards that were low quality and took their time paying attention to details.",
+        "author": "Bradley Painter",
+        "role": "Cedar Rapids, IA",
+        "company": ""
+      },
+      {
+        "quote": "If you want someone that listens, is patient, cordial, knows how to treat customers right, and delivers, look no farther!",
+        "author": "Natalie Garcia-McIntire",
+        "role": "Cedar Rapids, IA",
+        "company": ""
+      }
+    ]
+  },
+  "contactHero": {
+    "headline": "Get in Touch",
+    "subheadline": "Ready to get started or just have questions? Call or text Layne directly \u2014 he answers his own phone.",
+    "centered": true
+  },
+  "gallery": [
+    {
+      "src": "/images/01KX1MW0DHVMAQD2WZPW6M9F5M.webp",
+      "thumb400": "/images/01KX1MW0DHVMAQD2WZPW6M9F5M-400.webp",
+      "thumb800": "/images/01KX1MW0DHVMAQD2WZPW6M9F5M-800.webp",
+      "caption": "Deck build \u2014 Cedar Rapids",
+      "category": "Decks",
+      "sort": 1
+    },
+    {
+      "src": "/images/01KX1MW63Y25YENK5BP7K05391.webp",
+      "thumb400": "/images/01KX1MW63Y25YENK5BP7K05391-400.webp",
+      "thumb800": "/images/01KX1MW63Y25YENK5BP7K05391-800.webp",
+      "caption": "Composite deck with railing",
+      "category": "Decks",
+      "sort": 2
+    },
+    {
+      "src": "/images/01KX1MWGKS03FEDD66FJVZ1794.webp",
+      "thumb400": "/images/01KX1MWGKS03FEDD66FJVZ1794-400.webp",
+      "thumb800": "/images/01KX1MWGKS03FEDD66FJVZ1794-800.webp",
+      "caption": "Exterior siding installation",
+      "category": "Siding",
+      "sort": 3
+    },
+    {
+      "src": "/images/01KX1MWH9AMKSSY7RA35V7WMQY.webp",
+      "thumb400": "/images/01KX1MWH9AMKSSY7RA35V7WMQY-400.webp",
+      "thumb800": "/images/01KX1MWH9AMKSSY7RA35V7WMQY-800.webp",
+      "caption": "Trex deck \u2014 completed project",
+      "category": "Decks",
+      "sort": 4
+    },
+    {
+      "src": "/images/01KX1MWHZ378ZBPYR93FFAS709.webp",
+      "thumb400": "/images/01KX1MWHZ378ZBPYR93FFAS709-400.webp",
+      "thumb800": "/images/01KX1MWHZ378ZBPYR93FFAS709-800.webp",
+      "caption": "Deck steps and landing",
+      "category": "Decks",
+      "sort": 5
+    },
+    {
+      "src": "/images/01KX1MWJKAPXFSY4P0EC3QVHDF.webp",
+      "thumb400": "/images/01KX1MWJKAPXFSY4P0EC3QVHDF-400.webp",
+      "thumb800": "/images/01KX1MWJKAPXFSY4P0EC3QVHDF-800.webp",
+      "caption": "Completed composite deck",
+      "category": "Decks",
+      "sort": 6
+    },
+    {
+      "src": "/images/01KX1MWK6YYSFA7S2K90Y48RGB.webp",
+      "thumb400": "/images/01KX1MWK6YYSFA7S2K90Y48RGB-400.webp",
+      "thumb800": "/images/01KX1MWK6YYSFA7S2K90Y48RGB-800.webp",
+      "caption": "Deck with cable railing",
+      "category": "Decks",
+      "sort": 7
+    },
+    {
+      "src": "/images/01KX1MWKWMTY14V1YE1AP1WNWP.webp",
+      "thumb400": "/images/01KX1MWKWMTY14V1YE1AP1WNWP-400.webp",
+      "thumb800": "/images/01KX1MWKWMTY14V1YE1AP1WNWP-800.webp",
+      "caption": "Deck framing and structure",
+      "category": "Decks",
+      "sort": 8
+    },
+    {
+      "src": "/images/01KX1MWMHZG9R22NXRZG6DZ167.webp",
+      "thumb400": "/images/01KX1MWMHZG9R22NXRZG6DZ167-400.webp",
+      "thumb800": "/images/01KX1MWMHZG9R22NXRZG6DZ167-800.webp",
+      "caption": "Composite decking close-up",
+      "category": "Decks",
+      "sort": 9
+    },
+    {
+      "src": "/images/01KX1MWN6SV1D8S75HVMKWZA89.webp",
+      "thumb400": "/images/01KX1MWN6SV1D8S75HVMKWZA89-400.webp",
+      "thumb800": "/images/01KX1MWN6SV1D8S75HVMKWZA89-800.webp",
+      "caption": "Large deck overview",
+      "category": "Decks",
+      "sort": 10
+    },
+    {
+      "src": "/images/01KX1MWNW8GBBQD27AY3BFY3ZN.webp",
+      "thumb400": "/images/01KX1MWNW8GBBQD27AY3BFY3ZN-400.webp",
+      "thumb800": "/images/01KX1MWNW8GBBQD27AY3BFY3ZN-800.webp",
+      "caption": "Trex composite deck \u2014 full view",
+      "category": "Decks",
+      "sort": 11
+    },
+    {
+      "src": "/images/01KX1MWPH2H13HBWDSADTZKEXH.webp",
+      "thumb400": "/images/01KX1MWPH2H13HBWDSADTZKEXH-400.webp",
+      "thumb800": "/images/01KX1MWPH2H13HBWDSADTZKEXH-800.webp",
+      "caption": "Deck with backyard landscaping",
+      "category": "Decks",
+      "sort": 12
+    },
+    {
+      "src": "/images/01KX1MWQ5ZTG7GMRHT9SSJ1H2N.webp",
+      "thumb400": "/images/01KX1MWQ5ZTG7GMRHT9SSJ1H2N-400.webp",
+      "thumb800": "/images/01KX1MWQ5ZTG7GMRHT9SSJ1H2N-800.webp",
+      "caption": "Completed exterior project",
+      "category": "Exterior",
+      "sort": 13
+    },
+    {
+      "src": "/images/01KX1MWQTTMPZ24YF7A8YZ414F.webp",
+      "thumb400": "/images/01KX1MWQTTMPZ24YF7A8YZ414F-400.webp",
+      "thumb800": "/images/01KX1MWQTTMPZ24YF7A8YZ414F-800.webp",
+      "caption": "Deck detail and finish work",
+      "category": "Decks",
+      "sort": 14
+    },
+    {
+      "src": "/images/01KX1MWRFNYMYC9JCQWYSNSTZJ.webp",
+      "thumb400": "/images/01KX1MWRFNYMYC9JCQWYSNSTZJ-400.webp",
+      "thumb800": "/images/01KX1MWRFNYMYC9JCQWYSNSTZJ-800.webp",
+      "caption": "Railing detail \u2014 cable style",
+      "category": "Decks",
+      "sort": 15
+    },
+    {
+      "src": "/images/01KX1MWS591E62T0V945H94HHD.webp",
+      "thumb400": "/images/01KX1MWS591E62T0V945H94HHD-400.webp",
+      "thumb800": "/images/01KX1MWS591E62T0V945H94HHD-800.webp",
+      "caption": "Deck framing in progress",
+      "category": "Decks",
+      "sort": 16
+    },
+    {
+      "src": "/images/01KX1MWSTSYV92QVMFGWE100H2.webp",
+      "thumb400": "/images/01KX1MWSTSYV92QVMFGWE100H2-400.webp",
+      "thumb800": "/images/01KX1MWSTSYV92QVMFGWE100H2-800.webp",
+      "caption": "Finished deck project",
+      "category": "Decks",
+      "sort": 17
+    },
+    {
+      "src": "/images/01KX1MWTFVZ3XFHFJPK8XGS0MV.webp",
+      "thumb400": "/images/01KX1MWTFVZ3XFHFJPK8XGS0MV-400.webp",
+      "thumb800": "/images/01KX1MWTFVZ3XFHFJPK8XGS0MV-800.webp",
+      "caption": "Fiber cement siding detail",
+      "category": "Siding",
+      "sort": 18
+    },
+    {
+      "src": "/images/01KX1MWV53SJY1Y020571KR6ST.webp",
+      "thumb400": "/images/01KX1MWV53SJY1Y020571KR6ST-400.webp",
+      "thumb800": "/images/01KX1MWV53SJY1Y020571KR6ST-800.webp",
+      "caption": "Project overview \u2014 siding",
+      "category": "Siding",
+      "sort": 19
+    },
+    {
+      "src": "/images/01KX1MWXFJVDJTVS9G958XG0M6.webp",
+      "thumb400": "/images/01KX1MWXFJVDJTVS9G958XG0M6-400.webp",
+      "thumb800": "/images/01KX1MWXFJVDJTVS9G958XG0M6-800.webp",
+      "caption": "Deck installation \u2014 in progress",
+      "category": "Decks",
+      "sort": 20
+    },
+    {
+      "src": "/images/01KX1MWY5N196P736EVB6VFYR1.webp",
+      "thumb400": "/images/01KX1MWY5N196P736EVB6VFYR1-400.webp",
+      "thumb800": "/images/01KX1MWY5N196P736EVB6VFYR1-800.webp",
+      "caption": "Finished deck \u2014 summer",
+      "category": "Decks",
+      "sort": 21
+    },
+    {
+      "src": "/images/01KX1MWYWBEKYJ5N52DBV5XMHJ.webp",
+      "thumb400": "/images/01KX1MWYWBEKYJ5N52DBV5XMHJ-400.webp",
+      "thumb800": "/images/01KX1MWYWBEKYJ5N52DBV5XMHJ-800.webp",
+      "caption": "Exterior work completed",
+      "category": "Exterior",
+      "sort": 22
+    }
+  ]
+}

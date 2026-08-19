@@ -1,21 +1,28 @@
 ---
-import { getEmDashEntry } from "emdash";
 import Base from "../layouts/Base.astro";
-import MarketingBlocks from "../components/MarketingBlocks.astro";
+import Hero from "../components/Hero.astro";
+import content from "../data/content.json";
+import site from "../data/site.json";
 
-const { entry: page, cacheHint } = await getEmDashEntry("pages", "contact");
-if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+const ch = content.contactHero;
 ---
 
 <Base
 	title="Contact"
 	description="Get a free estimate from Master Carpenters. Call or text Layne Stark at (319) 360-4130."
 >
-	{page?.data.content && <MarketingBlocks value={page.data.content} />}
+	<Hero
+		headline={ch.headline}
+		subheadline={ch.subheadline}
+		centered={true}
+		primaryCtaLabel=""
+		primaryCtaUrl=""
+		secondaryCtaLabel=""
+		secondaryCtaUrl=""
+	/>
 
 	<section class="contact-section section">
 		<div class="container contact-grid">
-			<!-- Contact info -->
 			<div class="contact-info">
 				<h2>Reach Layne Directly</h2>
 				<p class="contact-intro">
@@ -28,7 +35,7 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 						<div class="method-icon">📞</div>
 						<div class="method-detail">
 							<span class="method-label">Phone / Text</span>
-							<a href="tel:3193604130" class="method-value">(319) 360-4130</a>
+							<a href={`tel:${site.phoneTel}`} class="method-value">{site.phone}</a>
 						</div>
 					</div>
 					<div class="contact-method">
@@ -55,7 +62,6 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 				</div>
 			</div>
 
-			<!-- Contact form -->
 			<div class="contact-form-wrap">
 				<h2>Send a Message</h2>
 				<p class="form-intro">Prefer to write it out? Fill in the form and Layne will get back to you.</p>
@@ -91,7 +97,6 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 						<label for="message">Tell us more</label>
 						<textarea id="message" name="message" rows="5" placeholder="Describe your project, location, timeline, or any questions you have."></textarea>
 					</div>
-					<!-- Honeypot: hidden from real users; bots that fill it get stored as spam in CC -->
 					<div class="hp-field" aria-hidden="true">
 						<label for="website_hp">Website</label>
 						<input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off" />
@@ -106,177 +111,68 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 
 <style>
 	.contact-section { padding-top: 0; }
-
 	.contact-grid {
-		display: grid;
-		grid-template-columns: 1fr 1.3fr;
-		gap: var(--spacing-5xl);
-		align-items: start;
-		padding-top: var(--spacing-4xl);
-		padding-bottom: var(--spacing-5xl);
+		display: grid; grid-template-columns: 1fr 1.3fr; gap: var(--spacing-5xl);
+		align-items: start; padding-top: var(--spacing-4xl); padding-bottom: var(--spacing-5xl);
 	}
-
-	.contact-info h2,
-	.contact-form-wrap h2 {
-		font-size: var(--font-size-2xl);
-		font-weight: var(--font-weight-display);
-		margin-bottom: var(--spacing-md);
+	.contact-info h2, .contact-form-wrap h2 {
+		font-size: var(--font-size-2xl); font-weight: var(--font-weight-display); margin-bottom: var(--spacing-md);
 	}
-
-	.contact-intro,
-	.form-intro {
-		font-size: var(--font-size-base);
-		color: var(--color-muted);
-		line-height: 1.6;
-		margin-bottom: var(--spacing-2xl);
+	.contact-intro, .form-intro {
+		font-size: var(--font-size-base); color: var(--color-muted); line-height: 1.6; margin-bottom: var(--spacing-2xl);
 	}
-
-	.contact-methods {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-lg);
-	}
-
+	.contact-methods { display: flex; flex-direction: column; gap: var(--spacing-lg); }
 	.contact-method {
-		display: flex;
-		align-items: flex-start;
-		gap: var(--spacing-md);
-		padding: var(--spacing-md);
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius);
+		display: flex; align-items: flex-start; gap: var(--spacing-md); padding: var(--spacing-md);
+		background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius);
 	}
-
-	.method-icon {
-		font-size: 1.4rem;
-		line-height: 1;
-		flex-shrink: 0;
-		margin-top: 0.1rem;
-	}
-
-	.method-detail {
-		display: flex;
-		flex-direction: column;
-		gap: 0.2rem;
-	}
-
+	.method-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
+	.method-detail { display: flex; flex-direction: column; gap: 0.2rem; }
 	.method-label {
-		font-size: var(--font-size-xs);
-		text-transform: uppercase;
-		letter-spacing: 0.07em;
-		color: var(--color-muted);
-		font-weight: 600;
+		font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: 0.07em;
+		color: var(--color-muted); font-weight: 600;
 	}
-
-	.method-value {
-		font-size: var(--font-size-base);
-		font-weight: 600;
-		color: var(--color-text);
-	}
-
+	.method-value { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text); }
 	a.method-value { color: var(--color-brand); }
 	a.method-value:hover { color: var(--color-brand-strong); }
-
-	/* Form */
-	.contact-form {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-md);
+	.contact-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+	.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
+	.form-field { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+	.form-field label { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); }
+	.form-field input, .form-field select, .form-field textarea {
+		font-family: var(--font-body); font-size: var(--font-size-base);
+		padding: var(--spacing-sm) var(--spacing-md); background: var(--color-bg);
+		border: 1px solid var(--color-border); border-radius: var(--radius);
+		color: var(--color-text); transition: border-color var(--transition-fast); width: 100%;
 	}
-
-	.form-row {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: var(--spacing-md);
-	}
-
-	.form-field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-xs);
-	}
-
-	.form-field label {
-		font-size: var(--font-size-sm);
-		font-weight: 600;
-		color: var(--color-text);
-	}
-
-	.form-field input,
-	.form-field select,
-	.form-field textarea {
-		font-family: var(--font-body);
-		font-size: var(--font-size-base);
-		padding: var(--spacing-sm) var(--spacing-md);
-		background: var(--color-bg);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius);
-		color: var(--color-text);
-		transition: border-color var(--transition-fast);
-		width: 100%;
-	}
-
-	.form-field input::placeholder,
-	.form-field textarea::placeholder {
-		color: var(--color-muted);
-	}
-
-	.form-field input:focus,
-	.form-field select:focus,
-	.form-field textarea:focus {
-		outline: none;
-		border-color: var(--color-brand);
+	.form-field input::placeholder, .form-field textarea::placeholder { color: var(--color-muted); }
+	.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+		outline: none; border-color: var(--color-brand);
 		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 15%, transparent);
 	}
-
 	.form-field textarea { resize: vertical; min-height: 120px; }
-
 	.submit-btn { align-self: flex-start; margin-top: var(--spacing-sm); }
-
 	@media (max-width: 860px) {
 		.contact-grid { grid-template-columns: 1fr; gap: var(--spacing-3xl); }
 		.form-row { grid-template-columns: 1fr; }
 	}
-
-	/* Form status messages */
-	.form-status {
-		display: none;
-		padding: var(--spacing-md);
-		border-radius: var(--radius);
-		font-size: var(--font-size-sm);
-		font-weight: 500;
-	}
+	.form-status { display: none; padding: var(--spacing-md); border-radius: var(--radius); font-size: var(--font-size-sm); font-weight: 500; }
 	.form-status.success {
-		display: block;
-		background: color-mix(in srgb, #22c55e 12%, transparent);
-		border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
-		color: #15803d;
+		display: block; background: color-mix(in srgb, #22c55e 12%, transparent);
+		border: 1px solid color-mix(in srgb, #22c55e 30%, transparent); color: #15803d;
 	}
 	.form-status.error {
-		display: block;
-		background: color-mix(in srgb, #ef4444 12%, transparent);
-		border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
-		color: #b91c1c;
+		display: block; background: color-mix(in srgb, #ef4444 12%, transparent);
+		border: 1px solid color-mix(in srgb, #ef4444 30%, transparent); color: #b91c1c;
 	}
-	.submit-btn:disabled {
-		opacity: 0.65;
-		cursor: not-allowed;
-	}
-	/* Honeypot — visually hidden, still in DOM for bots that auto-fill */
-	.hp-field {
-		position: absolute;
-		left: -10000px;
-		top: auto;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-	}
+	.submit-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+	.hp-field { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 </style>
 
 <script>
-	const form = document.getElementById("contact-form") as HTMLFormElement;
-	const status = document.getElementById("form-status") as HTMLElement;
-	const btn = document.getElementById("submit-btn") as HTMLButtonElement;
+	const form = document.getElementById("contact-form");
+	const status = document.getElementById("form-status");
+	const btn = document.getElementById("submit-btn");
 
 	form?.addEventListener("submit", async (e) => {
 		e.preventDefault();
@@ -284,13 +180,12 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 		status.textContent = "";
 
 		const data = {
-			name: (form.querySelector<HTMLInputElement>("#name"))?.value.trim() || "",
-			email: (form.querySelector<HTMLInputElement>("#email"))?.value.trim() || "",
-			phone: (form.querySelector<HTMLInputElement>("#phone"))?.value.trim() || "",
-			project: (form.querySelector<HTMLSelectElement>("#project"))?.value || "",
-			message: (form.querySelector<HTMLTextAreaElement>("#message"))?.value.trim() || "",
-			// Honeypot — real browsers leave this empty; bots often fill it.
-			website_hp: (form.querySelector<HTMLInputElement>("#website_hp"))?.value || "",
+			name: form.querySelector("#name")?.value.trim() || "",
+			email: form.querySelector("#email")?.value.trim() || "",
+			phone: form.querySelector("#phone")?.value.trim() || "",
+			project: form.querySelector("#project")?.value || "",
+			message: form.querySelector("#message")?.value.trim() || "",
+			website_hp: form.querySelector("#website_hp")?.value || "",
 		};
 
 		if (!data.name || !data.email) {
@@ -308,7 +203,7 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(data),
 			});
-			const json = await res.json() as { ok: boolean; error?: string };
+			const json = await res.json();
 
 			if (json.ok) {
 				form.reset();

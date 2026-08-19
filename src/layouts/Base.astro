@@ -1,8 +1,6 @@
 ---
-import { getMenu, getSiteSettings } from "emdash";
-import { EmDashHead } from "emdash/ui";
-import { createPublicPageContext } from "emdash/page";
 import { Font } from "astro:assets";
+import site from "../data/site.json";
 import "../styles/tokens.css";
 import "../styles/theme.css";
 
@@ -13,32 +11,10 @@ interface Props {
 }
 
 const { title, description, image } = Astro.props;
-const settings = await getSiteSettings();
-const siteTitle = (settings?.title as string) || "Master Carpenters";
+const siteTitle = site.title;
 const fullTitle = title ? `${title} — ${siteTitle}` : siteTitle;
-const siteDescription =
-	(settings?.tagline as string) || "Quality decks, siding & exterior work. Cedar Rapids, Iowa.";
-const siteLogo = (settings?.logo as any)?.url
-	? (settings.logo as { mediaId: string; alt?: string; url: string })
-	: null;
-
-const [menu, footerLinks] = await Promise.all([
-	getMenu("primary"),
-	getMenu("footer_links"),
-]);
-
-const pageCtx = createPublicPageContext({
-	Astro,
-	kind: "custom",
-	pageType: "website",
-	title: fullTitle,
-	pageTitle: title ?? siteTitle,
-	description: description || siteDescription,
-	canonical: Astro.url.href,
-	image,
-	seo: { ogImage: image },
-	siteName: siteTitle,
-});
+const siteDescription = description || site.tagline;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <!doctype html>
@@ -47,7 +23,14 @@ const pageCtx = createPublicPageContext({
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{fullTitle}</title>
-		<EmDashHead page={pageCtx} />
+		<meta name="description" content={siteDescription} />
+		<link rel="canonical" href={canonical} />
+		<meta property="og:title" content={fullTitle} />
+		<meta property="og:description" content={siteDescription} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonical} />
+		{image && <meta property="og:image" content={image} />}
+		<meta name="twitter:card" content="summary_large_image" />
 		<Font cssVariable="--font-body" preload />
 		<script is:inline>
 			(function () {
@@ -61,7 +44,7 @@ const pageCtx = createPublicPageContext({
 		</script>
 		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-X8NNHK5HKG"></script>
-		<script>
+		<script is:inline>
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
@@ -72,16 +55,13 @@ const pageCtx = createPublicPageContext({
 		<header class="site-header">
 			<nav class="nav">
 				<a href="/" class="site-logo">
-					{siteLogo
-						? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} class="site-logo-img" />
-						: <span class="logo-text"><span class="logo-mark">⬛</span> {siteTitle}</span>
-					}
+					<span class="logo-text"><span class="logo-mark">⬛</span> {siteTitle}</span>
 				</a>
 				<div class="nav-links">
-					{menu?.items.map((item) => (
-						<a href={item.url} target={item.target}>{item.label}</a>
+					{site.nav.map((item) => (
+						<a href={item.url}>{item.label}</a>
 					))}
-					<a href="tel:3193604130" class="nav-phone">(319) 360-4130</a>
+					<a href={`tel:${site.phoneTel}`} class="nav-phone">{site.phone}</a>
 				</div>
 				<div class="nav-actions">
 					<button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
@@ -93,10 +73,10 @@ const pageCtx = createPublicPageContext({
 			</nav>
 			<div class="mobile-nav" id="mobile-nav" aria-hidden="true">
 				<div class="mobile-nav-inner">
-					{menu?.items.map((item) => (
-						<a href={item.url} target={item.target} class="mobile-nav-link">{item.label}</a>
+					{site.nav.map((item) => (
+						<a href={item.url} class="mobile-nav-link">{item.label}</a>
 					))}
-					<a href="tel:3193604130" class="mobile-nav-link mobile-nav-phone">(319) 360-4130</a>
+					<a href={`tel:${site.phoneTel}`} class="mobile-nav-link mobile-nav-phone">{site.phone}</a>
 				</div>
 			</div>
 		</header>
@@ -109,15 +89,15 @@ const pageCtx = createPublicPageContext({
 			<div class="footer-inner">
 				<div class="footer-brand">
 					<span class="footer-logo-text">{siteTitle}</span>
-					<p class="footer-tagline">{siteDescription}</p>
+					<p class="footer-tagline">{site.tagline}</p>
 					<p class="footer-contact">
-						<a href="tel:3193604130">(319) 360-4130</a>
+						<a href={`tel:${site.phoneTel}`}>{site.phone}</a>
 					</p>
-					<p class="footer-hours">Mon – Fri &nbsp;8 AM – 4 PM &nbsp;·&nbsp; Cedar Rapids, IA</p>
+					<p class="footer-hours">{site.hours} &nbsp;·&nbsp; {site.location}</p>
 				</div>
 				<div class="footer-nav">
 					<h4>Quick Links</h4>
-					{footerLinks?.items.map((item) => (
+					{site.footerLinks.map((item) => (
 						<a href={item.url}>{item.label}</a>
 					))}
 				</div>
@@ -134,12 +114,10 @@ const pageCtx = createPublicPageContext({
 					<button type="button" class="theme-btn" data-theme="dark" aria-label="Dark mode">Dark</button>
 					<button type="button" class="theme-btn" data-theme="system" aria-label="System theme">System</button>
 				</div>
-				<p class="footer-powered">Powered by <a href="https://emdashcms.com">EmDash</a></p>
 			</div>
 		</footer>
 
 		<script>
-			// ---- Mobile nav toggle ----
 			const hamburger = document.getElementById('nav-hamburger') as HTMLButtonElement | null;
 			const mobileNav = document.getElementById('mobile-nav');
 
@@ -162,12 +140,10 @@ const pageCtx = createPublicPageContext({
 				isOpen ? closeMenu() : openMenu();
 			});
 
-			// Close when a nav link is tapped
 			mobileNav?.querySelectorAll('a').forEach(link => {
 				link.addEventListener('click', closeMenu);
 			});
 
-			// Close on outside click
 			document.addEventListener('click', (e) => {
 				const header = document.querySelector('.site-header');
 				if (header && !header.contains(e.target as Node)) {
@@ -221,14 +197,12 @@ const pageCtx = createPublicPageContext({
 					padding: 0;
 				}
 
-				/* Force light theme — override LightningCSS polyfill AND native color-scheme */
 				:root.light {
 					color-scheme: light;
 					--lightningcss-light: initial;
 					--lightningcss-dark: ;
 				}
 
-				/* Force dark theme */
 				:root.dark {
 					color-scheme: dark;
 					--lightningcss-light: ;
@@ -252,7 +226,7 @@ const pageCtx = createPublicPageContext({
 					min-height: 100vh;
 				}
 
-				a:where(:not([class*="emdash"]):not([class*="ec-"])) {
+				a {
 					color: currentColor;
 					text-decoration: none;
 				}
@@ -300,19 +274,6 @@ const pageCtx = createPublicPageContext({
 					margin-top: var(--spacing-md);
 					font-size: var(--font-size-lg);
 					color: var(--color-muted);
-				}
-
-				.icon-tile {
-					width: 48px;
-					height: 48px;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					flex-shrink: 0;
-					font-size: 1.5rem;
-					color: var(--color-on-brand);
-					background: var(--color-brand);
-					border-radius: var(--radius);
 				}
 
 				.btn {
@@ -398,11 +359,6 @@ const pageCtx = createPublicPageContext({
 				font-style: normal;
 			}
 
-			.site-logo-img {
-				height: 44px;
-				width: auto;
-			}
-
 			.nav-links {
 				display: flex;
 				flex-wrap: wrap;
@@ -435,15 +391,8 @@ const pageCtx = createPublicPageContext({
 
 			.nav-phone:hover { color: var(--color-brand-strong); }
 
-			.nav-admin {
-				font-size: 0.75rem;
-				color: var(--color-muted);
-				opacity: 0.4;
-			}
-
 			main { min-height: calc(100vh - 200px); }
 
-			/* ---- Footer ---- */
 			.site-footer {
 				background: var(--color-surface);
 				border-top: 1px solid var(--color-border);
@@ -525,8 +474,6 @@ const pageCtx = createPublicPageContext({
 				border-top: 1px solid var(--color-border);
 			}
 
-			.footer-powered a { color: var(--color-text); }
-
 			.theme-switcher { display: flex; gap: var(--spacing-xs); }
 
 			.theme-btn {
@@ -560,7 +507,6 @@ const pageCtx = createPublicPageContext({
 				h2 { font-size: var(--font-size-2xl); }
 			}
 
-			/* ---- Mobile nav ---- */
 			.nav-hamburger {
 				display: none;
 				flex-direction: column;

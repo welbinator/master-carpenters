@@ -1,0 +1,49 @@
+{
+  "title": "Master Carpenters",
+  "tagline": "Quality decks, siding & exterior work. Cedar Rapids, Iowa.",
+  "phone": "(319) 360-4130",
+  "phoneTel": "3193604130",
+  "hours": "Mon \u2013 Fri  8 AM \u2013 4 PM",
+  "location": "Cedar Rapids, IA",
+  "googleReviewsUrl": "https://maps.app.goo.gl/2vUvSxFykEqjqiM56",
+  "nav": [
+    {
+      "label": "Home",
+      "url": "/"
+    },
+    {
+      "label": "Services",
+      "url": "/#services"
+    },
+    {
+      "label": "Gallery",
+      "url": "/gallery"
+    },
+    {
+      "label": "Reviews",
+      "url": "/#reviews"
+    },
+    {
+      "label": "Contact",
+      "url": "/contact"
+    }
+  ],
+  "footerLinks": [
+    {
+      "label": "Home",
+      "url": "/"
+    },
+    {
+      "label": "Services",
+      "url": "/#services"
+    },
+    {
+      "label": "Gallery",
+      "url": "/gallery"
+    },
+    {
+      "label": "Contact",
+      "url": "/contact"
+    }
+  ]
+}

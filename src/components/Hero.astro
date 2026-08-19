@@ -1,0 +1,149 @@
+---
+import content from "../data/content.json";
+import site from "../data/site.json";
+
+interface Props {
+	headline?: string;
+	subheadline?: string;
+	primaryCtaLabel?: string;
+	primaryCtaUrl?: string;
+	secondaryCtaLabel?: string;
+	secondaryCtaUrl?: string;
+	image?: string;
+	srcset?: string;
+	centered?: boolean;
+}
+
+const hero = content.hero;
+const props = Astro.props;
+const headline = props.headline ?? hero.headline;
+const subheadline = props.subheadline ?? hero.subheadline;
+const primaryCtaLabel = "primaryCtaLabel" in props ? props.primaryCtaLabel : hero.primaryCtaLabel;
+const primaryCtaUrl = "primaryCtaUrl" in props ? props.primaryCtaUrl : hero.primaryCtaUrl;
+const secondaryCtaLabel = "secondaryCtaLabel" in props ? props.secondaryCtaLabel : hero.secondaryCtaLabel;
+const secondaryCtaUrl = "secondaryCtaUrl" in props ? props.secondaryCtaUrl : hero.secondaryCtaUrl;
+const image = props.image ?? hero.image;
+const srcset = props.srcset ?? hero.srcset;
+const centered = props.centered ?? false;
+---
+
+<section class:list={["hero-section", { "hero-centered": centered }]}>
+	<div class="hero-bg">
+		<img
+			src={image}
+			srcset={srcset}
+			sizes="100vw"
+			width="1200"
+			height="800"
+			alt="Master Carpenters deck and exterior work"
+			class="hero-bg-img"
+			loading="eager"
+			fetchpriority="high"
+		/>
+		<div class="hero-overlay"></div>
+	</div>
+
+	<div class="hero-inner">
+		<div class="hero-content">
+			<div class="hero-badge">
+				<span class="badge-dot"></span>
+				Cedar Rapids, Iowa
+			</div>
+
+			<h1 class="hero-headline">{headline}</h1>
+
+			{subheadline && <p class="hero-subheadline">{subheadline}</p>}
+
+			{!centered && (
+				<div class="hero-social-proof">
+					<div class="star-row" aria-label="5 stars">
+						{["★","★","★","★","★"].map(s => <span class="star">{s}</span>)}
+					</div>
+					<span class="proof-text">Rated 5 stars · 20+ Google reviews</span>
+				</div>
+			)}
+
+			{(primaryCtaLabel || secondaryCtaLabel) && (
+				<div class="hero-actions">
+					{primaryCtaLabel && primaryCtaUrl && (
+						<a href={primaryCtaUrl} class="btn btn-primary btn-lg">{primaryCtaLabel}</a>
+					)}
+					{secondaryCtaLabel && secondaryCtaUrl && (
+						<a href={secondaryCtaUrl} class="btn btn-outline-light btn-lg">{secondaryCtaLabel}</a>
+					)}
+				</div>
+			)}
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero-section {
+		position: relative;
+		min-height: 90vh;
+		display: flex;
+		align-items: flex-end;
+		overflow: hidden;
+	}
+	.hero-bg { position: absolute; inset: 0; z-index: 0; }
+	.hero-bg-img {
+		width: 100%; height: 100%;
+		object-fit: cover; object-position: center 70%; display: block;
+	}
+	.hero-overlay {
+		position: absolute; inset: 0;
+		background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.72) 75%, rgba(0,0,0,0.85) 100%);
+	}
+	@media (max-width: 768px) {
+		.hero-overlay {
+			background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.80) 75%, rgba(0,0,0,0.90) 100%);
+		}
+	}
+	.hero-inner {
+		position: relative; z-index: 1; width: 100%;
+		max-width: var(--wide-width); margin: 0 auto;
+		padding: var(--spacing-5xl) var(--spacing-lg) var(--spacing-4xl);
+	}
+	.hero-content { display: flex; flex-direction: column; gap: var(--spacing-lg); max-width: 700px; }
+	.hero-badge {
+		display: inline-flex; align-items: center; gap: 0.5rem;
+		background: rgba(255,255,255,0.15); color: #fff;
+		border: 1px solid rgba(255,255,255,0.3); border-radius: 999px;
+		padding: 0.3rem 0.85rem; font-size: var(--font-size-xs); font-weight: 600;
+		letter-spacing: 0.05em; text-transform: uppercase; width: fit-content;
+		backdrop-filter: blur(6px);
+	}
+	.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-brand-soft); flex-shrink: 0; }
+	.hero-headline {
+		font-size: clamp(2.6rem, 5vw, 4.2rem); font-weight: var(--font-weight-display);
+		line-height: 1.08; letter-spacing: -0.03em; color: #fff;
+		text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+	}
+	.hero-subheadline {
+		font-size: var(--font-size-lg); line-height: 1.65;
+		color: rgba(255,255,255,0.82); max-width: 52ch;
+	}
+	.hero-social-proof { display: flex; align-items: center; gap: var(--spacing-md); }
+	.star-row { display: flex; gap: 1px; }
+	.star { color: #f0b429; font-size: 1.1rem; }
+	.proof-text { font-size: var(--font-size-sm); color: rgba(255,255,255,0.75); font-weight: 500; }
+	.hero-actions { display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-top: var(--spacing-xs); }
+	.btn-outline-light {
+		background: transparent; border: 1.5px solid rgba(255,255,255,0.6);
+		color: #fff; font-weight: 600;
+	}
+	.btn-outline-light:hover { background: rgba(255,255,255,0.12); border-color: #fff; }
+	.hero-centered .hero-content { max-width: none; text-align: center; align-items: center; }
+	.hero-centered .hero-subheadline { margin: 0 auto; }
+	.hero-centered .hero-actions { justify-content: center; }
+	@media (max-width: 768px) {
+		.hero-section { min-height: 85vh; align-items: flex-end; }
+		.hero-headline { font-size: clamp(2rem, 7vw, 2.8rem); }
+		.hero-subheadline { font-size: var(--font-size-base); }
+	}
+	@media (max-width: 480px) {
+		.hero-section { min-height: 80vh; }
+		.hero-actions { flex-direction: column; }
+		.hero-actions .btn { width: 100%; text-align: center; }
+	}
+</style>
