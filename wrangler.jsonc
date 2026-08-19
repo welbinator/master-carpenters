@@ -9,6 +9,12 @@
       "database_id": "0bc6fa2a-67ed-49d6-a3d8-eacea997fe08"
     }
   ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "6057d0e1ddc249c78025fbb6a4aaa8ac"
+    }
+  ],
   "assets": {
     "directory": "./dist"
   }
