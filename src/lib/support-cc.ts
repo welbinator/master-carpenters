@@ -105,3 +105,37 @@ export async function notifySupportMessage(msg: SupportMessageNotify): Promise<v
 		created_at: msg.created_at,
 	});
 }
+
+export type SupportApprovalNotify = {
+	ticket_id: string;
+	message_id: string;
+	site_id: string;
+	site: string;
+	subject?: string;
+	body: string;
+	staging_url?: string;
+	user_email: string;
+	user_name: string;
+	created_at: string;
+	approved_at: string;
+};
+
+/** Fire-and-forget client approval webhook to Command Center. */
+export async function notifySupportApproval(msg: SupportApprovalNotify): Promise<void> {
+	await postSigned({
+		type: "approval",
+		ticket_id: msg.ticket_id,
+		message_id: msg.message_id,
+		site_id: msg.site_id,
+		site: msg.site,
+		subject: msg.subject || "",
+		body: msg.body,
+		message: msg.body,
+		staging_url: msg.staging_url || "",
+		status: "approved",
+		user_email: msg.user_email,
+		user_name: msg.user_name,
+		created_at: msg.created_at,
+		approved_at: msg.approved_at,
+	});
+}

@@ -97,7 +97,23 @@ import { withBase } from "../lib/base";
 							</div>
 						</div>
 						<div id="thread-messages" class="thread-messages" aria-live="polite"></div>
-						<form id="reply-form" class="support-form reply-form" novalidate>
+											<div id="thread-preview" class="thread-preview hidden" hidden>
+												<div class="thread-preview-inner">
+													<p class="thread-preview-kicker">Preview ready</p>
+													<p class="thread-preview-copy">
+														Review the staging site. If everything looks good, approve it and we’ll push the changes live.
+													</p>
+													<p class="thread-preview-link-wrap">
+														<a id="thread-staging-link" class="btn btn-secondary" href="#" target="_blank" rel="noopener">Open preview</a>
+													</p>
+													<div class="form-status" id="approve-status" aria-live="polite"></div>
+													<button type="button" class="btn btn-primary btn-lg" id="approve-btn">I approve these changes</button>
+												</div>
+											</div>
+											<div id="thread-approved" class="thread-approved hidden" hidden>
+												<p><strong>You approved this preview.</strong> We’ll push it live next and update this thread when it’s done.</p>
+											</div>
+											<form id="reply-form" class="support-form reply-form" novalidate>
 							<div class="form-field">
 								<label for="reply-body">Your reply</label>
 								<textarea id="reply-body" rows="4" maxlength="8000" required placeholder="Add more detail or answer a question…"></textarea>
@@ -259,6 +275,10 @@ import { withBase } from "../lib/base";
 		background: color-mix(in srgb, #f59e0b 16%, transparent);
 		color: #b45309;
 	}
+	:global(.ticket-status.is-approved) {
+		background: color-mix(in srgb, #22c55e 14%, transparent);
+		color: #15803d;
+	}
 	:global(.ticket-status.is-new) {
 		background: color-mix(in srgb, var(--color-brand) 12%, transparent);
 		color: var(--color-brand-strong, var(--color-brand));
@@ -325,6 +345,40 @@ import { withBase } from "../lib/base";
 		white-space: pre-wrap;
 		word-break: break-word;
 	}
+	.thread-preview {
+		margin: 0 0 var(--spacing-xl);
+		padding: var(--spacing-lg);
+		border: 1px solid color-mix(in srgb, var(--color-brand) 35%, var(--color-border));
+		border-radius: calc(var(--radius) + 2px);
+		background: color-mix(in srgb, var(--color-brand) 8%, var(--color-bg));
+	}
+	.thread-preview-kicker {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-brand);
+		margin: 0 0 0.35rem;
+	}
+	.thread-preview-copy {
+		margin: 0 0 var(--spacing-md);
+		color: var(--color-text);
+		line-height: 1.5;
+		font-size: var(--font-size-sm);
+	}
+	.thread-preview-link-wrap { margin: 0 0 var(--spacing-md); }
+	.thread-preview #approve-btn { width: 100%; max-width: 320px; }
+	.thread-approved {
+		margin: 0 0 var(--spacing-xl);
+		padding: var(--spacing-md) var(--spacing-lg);
+		border-radius: var(--radius);
+		border: 1px solid color-mix(in srgb, #22c55e 35%, var(--color-border));
+		background: color-mix(in srgb, #22c55e 12%, var(--color-bg));
+		color: #15803d;
+		font-size: var(--font-size-sm);
+		line-height: 1.5;
+	}
+	.thread-approved p { margin: 0; }
 	.reply-form { border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg); }
 	.hidden { display: none !important; }
 </style>
@@ -356,6 +410,11 @@ import { withBase } from "../lib/base";
 		threadStatus: document.getElementById("thread-status") as HTMLElement,
 		threadMeta: document.getElementById("thread-meta") as HTMLElement,
 		threadMessages: document.getElementById("thread-messages") as HTMLElement,
+		threadPreview: document.getElementById("thread-preview") as HTMLElement,
+		threadApproved: document.getElementById("thread-approved") as HTMLElement,
+		stagingLink: document.getElementById("thread-staging-link") as HTMLAnchorElement,
+		approveBtn: document.getElementById("approve-btn") as HTMLButtonElement,
+		approveStatus: document.getElementById("approve-status") as HTMLElement,
 		replyForm: document.getElementById("reply-form") as HTMLFormElement,
 		replyBody: document.getElementById("reply-body") as HTMLTextAreaElement,
 		replyStatus: document.getElementById("reply-status") as HTMLElement,
@@ -381,10 +440,45 @@ import { withBase } from "../lib/base";
 			in_progress: "In progress",
 			waiting_on_client: "Waiting on you",
 			staging: "Preview ready",
+			approved: "Approved",
 			done: "Done",
 			closed: "Closed",
 		};
 		return map[s] || s || "New";
+	}
+
+	function updatePreviewPanels(t: any) {
+		const st = String(t?.status || "");
+		const staging = String(t?.staging_url || "").trim();
+		const approved = st === "approved" || !!t?.approved_at;
+
+		if (approved) {
+			show(el.threadPreview, false);
+			show(el.threadApproved, true);
+			return;
+		}
+
+		show(el.threadApproved, false);
+		if (st === "staging") {
+			show(el.threadPreview, true);
+			if (el.stagingLink) {
+				if (staging) {
+					el.stagingLink.href = staging;
+					el.stagingLink.style.display = "";
+					el.stagingLink.textContent = "Open preview";
+				} else {
+					el.stagingLink.removeAttribute("href");
+					el.stagingLink.style.display = "none";
+				}
+			}
+			if (el.approveBtn) {
+				el.approveBtn.disabled = false;
+				el.approveBtn.textContent = "I approve these changes";
+			}
+			if (el.approveStatus) setStatus(el.approveStatus, "", "");
+		} else {
+			show(el.threadPreview, false);
+		}
 	}
 
 	function esc(s: string) {
@@ -471,6 +565,8 @@ import { withBase } from "../lib/base";
 		show(el.viewThread, true);
 		el.threadMessages.innerHTML = `<div class="support-muted">Loading conversation…</div>`;
 		setStatus(el.replyStatus, "", "");
+		show(el.threadPreview, false);
+		show(el.threadApproved, false);
 		try {
 			const res = await fetch(api(`/api/support/ticket?id=${encodeURIComponent(id)}`), {
 				credentials: "same-origin",
@@ -483,6 +579,7 @@ import { withBase } from "../lib/base";
 			el.threadStatus.textContent = statusLabel(t.status || "new");
 			el.threadMeta.textContent = [
 				t.page_url ? `Page: ${t.page_url}` : "",
+				t.staging_url ? `Preview available` : "",
 				`Opened ${fmtDate(t.created_at)}`,
 			]
 				.filter(Boolean)
@@ -503,6 +600,7 @@ import { withBase } from "../lib/base";
 					.join("");
 				el.threadMessages.scrollTop = el.threadMessages.scrollHeight;
 			}
+			updatePreviewPanels(t);
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Failed to load";
 			el.threadMessages.innerHTML = `<div class="form-status error" style="display:block">${esc(msg)}</div>`;
@@ -630,6 +728,31 @@ import { withBase } from "../lib/base";
 
 	el.refreshBtn?.addEventListener("click", () => loadTickets());
 	el.threadBack?.addEventListener("click", () => showList());
+
+	el.approveBtn?.addEventListener("click", async () => {
+		if (!activeTicketId) return;
+		if (el.approveStatus) setStatus(el.approveStatus, "", "");
+		if (!confirm("Approve this preview and ask us to push it live?")) return;
+		el.approveBtn.disabled = true;
+		el.approveBtn.textContent = "Approving…";
+		try {
+			const res = await fetch(api("/api/support/approve"), {
+				method: "POST",
+				credentials: "same-origin",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ ticket_id: activeTicketId }),
+			});
+			const data = await res.json();
+			if (!res.ok || !data.ok) throw new Error(data.error || "Could not approve");
+			if (el.approveStatus) setStatus(el.approveStatus, "success", "Approved — thanks!");
+			await openThread(activeTicketId);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Could not approve";
+			if (el.approveStatus) setStatus(el.approveStatus, "error", msg);
+			el.approveBtn.disabled = false;
+			el.approveBtn.textContent = "I approve these changes";
+		}
+	});
 
 	(async () => {
 		try {

@@ -30,7 +30,7 @@ export const GET: APIRoute = async ({ request }) => {
 	try {
 		const { results } = await db
 			.prepare(
-				`SELECT id, subject, message, page_url, status, created_at, updated_at
+				`SELECT id, subject, message, page_url, status, staging_url, approved_at, created_at, updated_at
 				 FROM support_tickets
 				 WHERE user_id = ?
 				 ORDER BY updated_at DESC

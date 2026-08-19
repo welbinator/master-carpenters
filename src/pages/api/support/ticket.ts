@@ -26,7 +26,7 @@ export const GET: APIRoute = async ({ request }) => {
 	try {
 		const ticket = await db
 			.prepare(
-				`SELECT id, subject, message, page_url, status, created_at, updated_at, user_id
+				`SELECT id, subject, message, page_url, status, staging_url, approved_at, created_at, updated_at, user_id
 				 FROM support_tickets WHERE id = ? LIMIT 1`
 			)
 			.bind(id)
@@ -36,6 +36,8 @@ export const GET: APIRoute = async ({ request }) => {
 				message: string;
 				page_url: string;
 				status: string;
+				staging_url: string;
+				approved_at: string;
 				created_at: string;
 				updated_at: string;
 				user_id: string;

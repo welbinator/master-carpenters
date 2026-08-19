@@ -4,7 +4,11 @@ import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 
 /**
- * Inbound webhook from Command Center when staff replies.
+ * Inbound webhook from Command Center.
+ * Types:
+ *  - staff_message / message (default): append staff reply
+ *  - ticket_update: sync status + staging_url (no message body required)
+ *
  * HMAC: X-CC-Signature t=<ts>,v0=<hex> over v0:<ts>:<raw_body>
  * Secret: PUSH_NOTIFY_SECRET (same as outbound).
  */
@@ -71,13 +75,7 @@ export const POST: APIRoute = async ({ request }) => {
 	}
 
 	const ticketId = String(payload.ticket_id || "").trim();
-	const msgId = String(payload.message_id || "").trim();
-	const body = String(payload.body || "").trim().slice(0, 8000);
-	const author = String(payload.author_name || "Support").trim().slice(0, 120);
-	const createdAt = String(payload.created_at || new Date().toISOString()).slice(0, 40);
-	const status = String(payload.status || "").trim().slice(0, 40);
-
-	if (!ticketId || !body) return json({ error: "ticket_id and body required" }, 400);
+	if (!ticketId) return json({ error: "ticket_id required" }, 400);
 
 	const db = env.DB;
 	if (!db) return json({ error: "db unavailable" }, 500);
@@ -87,6 +85,71 @@ export const POST: APIRoute = async ({ request }) => {
 		.bind(ticketId)
 		.first();
 	if (!ticket) return json({ error: "ticket not found" }, 404);
+
+	const ptype = String(payload.type || "staff_message").toLowerCase();
+	const status = String(payload.status || "").trim().slice(0, 40);
+	const stagingUrl =
+		payload.staging_url !== undefined
+			? String(payload.staging_url || "").trim().slice(0, 500)
+			: null;
+	const updatedAt = String(payload.updated_at || payload.created_at || new Date().toISOString()).slice(
+		0,
+		40
+	);
+
+	// Metadata-only sync (preview ready + staging link)
+	if (ptype === "ticket_update" || ptype === "status") {
+		try {
+			const updates: string[] = [`updated_at = ?`];
+			const binds: unknown[] = [updatedAt];
+			if (status) {
+				updates.push(`status = ?`);
+				binds.push(status);
+			}
+			if (stagingUrl !== null) {
+				updates.push(`staging_url = ?`);
+				binds.push(stagingUrl);
+			}
+			// If moving back out of approved via staff action, clear approved_at only when status is staging/new/etc
+			if (status && status !== "approved") {
+				// leave approved_at history unless explicitly cleared
+			}
+			binds.push(ticketId);
+			await db
+				.prepare(`UPDATE support_tickets SET ${updates.join(", ")} WHERE id = ?`)
+				.bind(...binds)
+				.run();
+
+			// Optional staff note as message when provided
+			const note = String(payload.body || "").trim().slice(0, 8000);
+			const msgId = String(payload.message_id || "").trim();
+			if (note) {
+				const id = msgId || `msg_${Date.now().toString(36)}`;
+				const author = String(payload.author_name || "Support").trim().slice(0, 120);
+				await db
+					.prepare(
+						`INSERT OR IGNORE INTO support_messages
+							(id, ticket_id, sender, author_name, body, created_at)
+						 VALUES (?, ?, 'staff', ?, ?, ?)`
+					)
+					.bind(id, ticketId, author || "Support", note, updatedAt)
+					.run();
+			}
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : String(err);
+			console.error("inbound ticket_update error:", msg);
+			return json({ error: "db write failed" }, 500);
+		}
+		return json({ ok: true, type: "ticket_update" });
+	}
+
+	// Default: staff message
+	const msgId = String(payload.message_id || "").trim();
+	const body = String(payload.body || "").trim().slice(0, 8000);
+	const author = String(payload.author_name || "Support").trim().slice(0, 120);
+	const createdAt = String(payload.created_at || new Date().toISOString()).slice(0, 40);
+
+	if (!body) return json({ error: "ticket_id and body required" }, 400);
 
 	const id = msgId || `msg_${Date.now().toString(36)}`;
 
@@ -105,6 +168,10 @@ export const POST: APIRoute = async ({ request }) => {
 		if (status) {
 			updates.push(`status = ?`);
 			binds.push(status);
+		}
+		if (stagingUrl !== null) {
+			updates.push(`staging_url = ?`);
+			binds.push(stagingUrl);
 		}
 		binds.push(ticketId);
 		await db
