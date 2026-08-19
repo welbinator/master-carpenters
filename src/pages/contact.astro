@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
 import content from "../data/content.json";
 import site from "../data/site.json";
+import { withBase } from "../lib/base";
 
 const ch = content.contactHero;
 ---
@@ -65,7 +66,7 @@ const ch = content.contactHero;
 			<div class="contact-form-wrap">
 				<h2>Send a Message</h2>
 				<p class="form-intro">Prefer to write it out? Fill in the form and Layne will get back to you.</p>
-				<form class="contact-form" id="contact-form" novalidate>
+				<form class="contact-form" id="contact-form" data-api={withBase("/api/contact")} novalidate>
 					<div class="form-row">
 						<div class="form-field">
 							<label for="name">Your Name</label>
@@ -198,7 +199,8 @@ const ch = content.contactHero;
 		btn.textContent = "Sending…";
 
 		try {
-			const res = await fetch("/api/contact", {
+			const api = form.dataset.api || "/api/contact";
+			const res = await fetch(api, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(data),

@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import content from "../data/content.json";
 import site from "../data/site.json";
+import { withBase } from "../lib/base";
 
 const photos = content.gallery;
 const categories = ["All", ...new Set(photos.map((p) => p.category || "General").filter(Boolean))];
@@ -43,14 +44,14 @@ const categories = ["All", ...new Set(photos.map((p) => p.category || "General")
 								<button
 									type="button"
 									class="photo-wrap"
-									data-src={photo.src}
+									data-src={withBase(photo.src)}
 									data-caption={photo.caption || ""}
 									data-index={index}
 									aria-label={`View ${photo.caption || "photo"} full size`}
 								>
 									<img
-										src={photo.thumb400}
-										srcset={`${photo.thumb400} 400w, ${photo.thumb800} 800w`}
+										src={withBase(photo.thumb400)}
+										srcset={`${withBase(photo.thumb400)} 400w, ${withBase(photo.thumb800)} 800w`}
 										sizes="(max-width: 540px) 100vw, (max-width: 900px) 50vw, 33vw"
 										alt={photo.caption || "Master Carpenters project photo"}
 										loading="lazy"
@@ -76,7 +77,7 @@ const categories = ["All", ...new Set(photos.map((p) => p.category || "General")
 				<h2>Like what you see?</h2>
 				<p>Get a free estimate for your deck, siding, or exterior project.</p>
 				<div class="cta-actions">
-					<a href="/contact" class="btn btn-primary btn-lg">Get a Free Estimate</a>
+					<a href={withBase("/contact")} class="btn btn-primary btn-lg">Get a Free Estimate</a>
 					<a href={`tel:${site.phoneTel}`} class="btn btn-secondary btn-lg">{site.phone}</a>
 				</div>
 			</div>

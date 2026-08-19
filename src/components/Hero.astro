@@ -1,6 +1,6 @@
 ---
 import content from "../data/content.json";
-import site from "../data/site.json";
+import { withBase, withBaseSrcset } from "../lib/base";
 
 interface Props {
 	headline?: string;
@@ -30,8 +30,8 @@ const centered = props.centered ?? false;
 <section class:list={["hero-section", { "hero-centered": centered }]}>
 	<div class="hero-bg">
 		<img
-			src={image}
-			srcset={srcset}
+			src={withBase(image)}
+			srcset={srcset ? withBaseSrcset(srcset) : undefined}
 			sizes="100vw"
 			width="1200"
 			height="800"
@@ -66,10 +66,10 @@ const centered = props.centered ?? false;
 			{(primaryCtaLabel || secondaryCtaLabel) && (
 				<div class="hero-actions">
 					{primaryCtaLabel && primaryCtaUrl && (
-						<a href={primaryCtaUrl} class="btn btn-primary btn-lg">{primaryCtaLabel}</a>
+						<a href={withBase(primaryCtaUrl)} class="btn btn-primary btn-lg">{primaryCtaLabel}</a>
 					)}
 					{secondaryCtaLabel && secondaryCtaUrl && (
-						<a href={secondaryCtaUrl} class="btn btn-outline-light btn-lg">{secondaryCtaLabel}</a>
+						<a href={withBase(secondaryCtaUrl)} class="btn btn-outline-light btn-lg">{secondaryCtaLabel}</a>
 					)}
 				</div>
 			)}

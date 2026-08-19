@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import { withBase } from "../lib/base";
 ---
 
 <Base title="Page not found">
@@ -9,8 +10,8 @@ import Base from "../layouts/Base.astro";
 		<p>The page you're looking for doesn't exist or has been moved.</p>
 		<p class="redirect-notice">Taking you home in <span id="countdown">8</span> seconds…</p>
 		<div class="not-found-actions">
-			<a href="/" class="btn btn-primary btn-lg">Go home now</a>
-			<a href="/contact" class="btn btn-secondary btn-lg">Contact us</a>
+			<a href={withBase("/")} class="btn btn-primary btn-lg">Go home now</a>
+			<a href={withBase("/contact")} class="btn btn-secondary btn-lg">Contact us</a>
 		</div>
 	</div>
 </Base>
@@ -45,7 +46,7 @@ import Base from "../layouts/Base.astro";
 			el.textContent = String(t);
 			if (t <= 0) {
 				clearInterval(iv);
-				window.location.replace("/");
+				window.location.replace(`${document.querySelector('a.btn-primary')?.getAttribute('href') || '/'}`);
 			}
 		}, 1000);
 	}

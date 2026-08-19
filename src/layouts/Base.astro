@@ -1,6 +1,7 @@
 ---
 import { Font } from "astro:assets";
 import site from "../data/site.json";
+import { withBase } from "../lib/base";
 import "../styles/tokens.css";
 import "../styles/theme.css";
 
@@ -54,12 +55,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 	<body>
 		<header class="site-header">
 			<nav class="nav">
-				<a href="/" class="site-logo">
+				<a href={withBase("/")} class="site-logo">
 					<span class="logo-text"><span class="logo-mark">⬛</span> {siteTitle}</span>
 				</a>
 				<div class="nav-links">
 					{site.nav.map((item) => (
-						<a href={item.url}>{item.label}</a>
+						<a href={withBase(item.url)}>{item.label}</a>
 					))}
 					<a href={`tel:${site.phoneTel}`} class="nav-phone">{site.phone}</a>
 				</div>
@@ -74,7 +75,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 			<div class="mobile-nav" id="mobile-nav" aria-hidden="true">
 				<div class="mobile-nav-inner">
 					{site.nav.map((item) => (
-						<a href={item.url} class="mobile-nav-link">{item.label}</a>
+						<a href={withBase(item.url)} class="mobile-nav-link">{item.label}</a>
 					))}
 					<a href={`tel:${site.phoneTel}`} class="mobile-nav-link mobile-nav-phone">{site.phone}</a>
 				</div>
@@ -98,13 +99,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 				<div class="footer-nav">
 					<h4>Quick Links</h4>
 					{site.footerLinks.map((item) => (
-						<a href={item.url}>{item.label}</a>
+						<a href={withBase(item.url)}>{item.label}</a>
 					))}
 				</div>
 				<div class="footer-cta-col">
 					<h4>Ready to get started?</h4>
 					<p>Call or text Layne directly for a free estimate on your project.</p>
-					<a href="/contact" class="btn btn-primary">Get a Free Estimate</a>
+					<a href={withBase("/contact")} class="btn btn-primary">Get a Free Estimate</a>
 				</div>
 			</div>
 			<div class="footer-bottom">

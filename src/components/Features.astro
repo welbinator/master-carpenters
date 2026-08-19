@@ -1,5 +1,6 @@
 ---
 import content from "../data/content.json";
+import { withBase, withBaseSrcset } from "../lib/base";
 
 const { headline, subheadline, id } = content.features;
 const photos = content.gallery.slice(0, 6);
@@ -20,14 +21,14 @@ const photos = content.gallery.slice(0, 6);
 					<button
 						type="button"
 						class="preview-tile"
-						data-src={photo.src}
+						data-src={withBase(photo.src)}
 						data-caption={photo.caption}
 						data-index={index}
 						aria-label={`View ${photo.caption || "photo"} full size`}
 					>
 						<img
-							src={photo.thumb400}
-							srcset={`${photo.thumb400} 400w, ${photo.thumb800} 800w`}
+							src={withBase(photo.thumb400)}
+							srcset={`${withBase(photo.thumb400)} 400w, ${withBase(photo.thumb800)} 800w`}
 							sizes="(max-width: 540px) 100vw, (max-width: 900px) 50vw, 33vw"
 							width="400"
 							height="300"
@@ -44,7 +45,7 @@ const photos = content.gallery.slice(0, 6);
 		)}
 
 		<div class="gallery-link-wrap">
-			<a href="/gallery" class="btn btn-secondary btn-lg gallery-cta-link">
+			<a href={withBase("/gallery")} class="btn btn-secondary btn-lg gallery-cta-link">
 				View the Full Gallery &rarr;
 			</a>
 		</div>
