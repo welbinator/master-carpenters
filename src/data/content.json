@@ -94,18 +94,18 @@
   },
   "gallery": [
     {
-      "src": "/images/01KX1MW63Y25YENK5BP7K05391.webp",
-      "thumb400": "/images/01KX1MW63Y25YENK5BP7K05391-400.webp",
-      "thumb800": "/images/01KX1MW63Y25YENK5BP7K05391-800.webp",
-      "caption": "Composite deck with railing",
-      "category": "Decks",
-      "sort": 1
-    },
-    {
       "src": "/images/01KX1MW0DHVMAQD2WZPW6M9F5M.webp",
       "thumb400": "/images/01KX1MW0DHVMAQD2WZPW6M9F5M-400.webp",
       "thumb800": "/images/01KX1MW0DHVMAQD2WZPW6M9F5M-800.webp",
       "caption": "Deck build \u2014 Cedar Rapids",
+      "category": "Decks",
+      "sort": 1
+    },
+    {
+      "src": "/images/01KX1MW63Y25YENK5BP7K05391.webp",
+      "thumb400": "/images/01KX1MW63Y25YENK5BP7K05391-400.webp",
+      "thumb800": "/images/01KX1MW63Y25YENK5BP7K05391-800.webp",
+      "caption": "Composite deck with railing",
       "category": "Decks",
       "sort": 2
     },
