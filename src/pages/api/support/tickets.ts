@@ -33,12 +33,37 @@ export const GET: APIRoute = async ({ request }) => {
 				`SELECT id, subject, message, page_url, status, created_at, updated_at
 				 FROM support_tickets
 				 WHERE user_id = ?
-				 ORDER BY created_at DESC
+				 ORDER BY updated_at DESC
 				 LIMIT 100`
 			)
 			.bind(user.id)
 			.all();
-		return json({ ok: true, tickets: results || [] });
+
+		const tickets = results || [];
+		// Attach last message preview when available
+		for (const t of tickets as Array<Record<string, unknown>>) {
+			const last = await db
+				.prepare(
+					`SELECT body, sender, created_at, author_name
+					 FROM support_messages
+					 WHERE ticket_id = ?
+					 ORDER BY created_at DESC
+					 LIMIT 1`
+				)
+				.bind(t.id)
+				.first();
+			if (last) {
+				t.last_message_preview = String(last.body || "").slice(0, 140);
+				t.last_message_from = last.sender;
+				t.last_message_at = last.created_at;
+			} else {
+				t.last_message_preview = String(t.message || "").slice(0, 140);
+				t.last_message_from = "client";
+				t.last_message_at = t.created_at;
+			}
+		}
+
+		return json({ ok: true, tickets });
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		console.error("support tickets list error:", msg);
@@ -68,36 +93,44 @@ export const POST: APIRoute = async ({ request }) => {
 	if (!db) return json({ ok: false, error: "Database unavailable" }, 500);
 
 	const id = makeId("tkt");
+	const msgId = makeId("msg");
 	const now = new Date().toISOString();
 	const status = "new";
 
 	try {
-		await db
-			.prepare(
-				`INSERT INTO support_tickets
-					(id, user_id, user_email, user_name, subject, message, page_url, status, created_at, updated_at)
-				 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-			)
-			.bind(
-				id,
-				user.id,
-				user.email,
-				user.name || "",
-				subject,
-				message,
-				page_url || "",
-				status,
-				now,
-				now
-			)
-			.run();
+		await db.batch([
+			db
+				.prepare(
+					`INSERT INTO support_tickets
+						(id, user_id, user_email, user_name, subject, message, page_url, status, created_at, updated_at)
+					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+				)
+				.bind(
+					id,
+					user.id,
+					user.email,
+					user.name || "",
+					subject,
+					message,
+					page_url || "",
+					status,
+					now,
+					now
+				),
+			db
+				.prepare(
+					`INSERT INTO support_messages
+						(id, ticket_id, sender, author_name, body, created_at)
+					 VALUES (?, ?, 'client', ?, ?, ?)`
+				)
+				.bind(msgId, id, user.name || user.email, message, now),
+		]);
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		console.error("support ticket insert error:", msg);
 		return json({ ok: false, error: "Could not save request" }, 500);
 	}
 
-	// Notify Command Center (source of truth for James's inbox)
 	try {
 		await notifySupportTicket({
 			id,
@@ -110,6 +143,7 @@ export const POST: APIRoute = async ({ request }) => {
 			user_name: user.name || "",
 			status,
 			created_at: now,
+			message_id: msgId,
 		});
 	} catch (err) {
 		console.warn("support CC notify error:", err);

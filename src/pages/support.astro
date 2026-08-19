@@ -14,17 +14,15 @@ import { withBase } from "../lib/base";
 				<p class="support-kicker">Client portal</p>
 				<h1>Website support</h1>
 				<p class="support-intro">
-					Log in to request website changes and see the status of previous requests.
+					Log in to request website changes, view replies, and keep the conversation in one place.
 					This page is private — accounts are created by your web team.
 				</p>
 			</div>
 
-			<!-- Loading -->
 			<div id="support-loading" class="support-card">
 				<p>Checking your session…</p>
 			</div>
 
-			<!-- Login -->
 			<div id="support-login" class="support-card hidden" hidden>
 				<h2>Log in</h2>
 				<p class="support-muted">Use the email and password we gave you. There’s no public sign-up.</p>
@@ -42,7 +40,6 @@ import { withBase } from "../lib/base";
 				</form>
 			</div>
 
-			<!-- Dashboard -->
 			<div id="support-dash" class="hidden" hidden>
 				<div class="support-userbar">
 					<div>
@@ -51,39 +48,63 @@ import { withBase } from "../lib/base";
 					<button type="button" class="btn btn-secondary btn-sm" id="logout-btn">Log out</button>
 				</div>
 
-				<div class="support-grid">
-					<div class="support-card">
-						<h2>New request</h2>
-						<p class="support-muted">Describe the change you need. We’ll review it and follow up with a preview when ready.</p>
-						<form id="ticket-form" class="support-form" novalidate
-							data-api={withBase("/api/support/tickets")}
-						>
-							<div class="form-field">
-								<label for="ticket-subject">Subject</label>
-								<input type="text" id="ticket-subject" name="subject" required maxlength="200" placeholder="e.g. Update homepage phone number" />
-							</div>
-							<div class="form-field">
-								<label for="ticket-page">Page URL <span class="optional">(optional)</span></label>
-								<input type="url" id="ticket-page" name="page_url" maxlength="500" placeholder="https://mastercarpentersllc.com/gallery" />
-							</div>
-							<div class="form-field">
-								<label for="ticket-message">What do you need?</label>
-								<textarea id="ticket-message" name="message" required rows="6" maxlength="8000" placeholder="Tell us exactly what should change. Include wording, photos, or links if helpful."></textarea>
-							</div>
-							<div class="form-status" id="ticket-status" aria-live="polite"></div>
-							<button type="submit" class="btn btn-primary btn-lg" id="ticket-btn">Submit request</button>
-						</form>
-					</div>
+				<!-- LIST VIEW -->
+				<div id="view-list">
+					<div class="support-grid">
+						<div class="support-card">
+							<h2>New request</h2>
+							<p class="support-muted">Describe the change you need. We’ll reply here when there’s an update.</p>
+							<form id="ticket-form" class="support-form" novalidate>
+								<div class="form-field">
+									<label for="ticket-subject">Subject</label>
+									<input type="text" id="ticket-subject" name="subject" required maxlength="200" placeholder="e.g. Update homepage phone number" />
+								</div>
+								<div class="form-field">
+									<label for="ticket-page">Page URL <span class="optional">(optional)</span></label>
+									<input type="url" id="ticket-page" name="page_url" maxlength="500" placeholder="https://mastercarpentersllc.com/gallery" />
+								</div>
+								<div class="form-field">
+									<label for="ticket-message">What do you need?</label>
+									<textarea id="ticket-message" name="message" required rows="6" maxlength="8000" placeholder="Tell us exactly what should change."></textarea>
+								</div>
+								<div class="form-status" id="ticket-status" aria-live="polite"></div>
+								<button type="submit" class="btn btn-primary btn-lg" id="ticket-btn">Submit request</button>
+							</form>
+						</div>
 
-					<div class="support-card">
-						<div class="support-list-head">
-							<h2>Your requests</h2>
-							<button type="button" class="btn btn-ghost btn-sm" id="refresh-tickets">↻ Refresh</button>
+						<div class="support-card">
+							<div class="support-list-head">
+								<h2>Your requests</h2>
+								<button type="button" class="btn btn-ghost btn-sm" id="refresh-tickets">↻ Refresh</button>
+							</div>
+							<div id="tickets-empty" class="support-empty hidden" hidden>
+								No requests yet. Submit one on the left when you need a change.
+							</div>
+							<ul id="tickets-list" class="tickets-list"></ul>
 						</div>
-						<div id="tickets-empty" class="support-empty hidden" hidden>
-							No requests yet. Submit one on the left when you need a change.
+					</div>
+				</div>
+
+				<!-- THREAD VIEW -->
+				<div id="view-thread" class="hidden" hidden>
+					<button type="button" class="btn btn-ghost btn-sm thread-back" id="thread-back">← All requests</button>
+					<div class="support-card thread-card">
+						<div class="thread-head">
+							<div>
+								<p class="thread-status" id="thread-status">—</p>
+								<h2 id="thread-subject">Request</h2>
+								<p class="thread-meta" id="thread-meta"></p>
+							</div>
 						</div>
-						<ul id="tickets-list" class="tickets-list"></ul>
+						<div id="thread-messages" class="thread-messages" aria-live="polite"></div>
+						<form id="reply-form" class="support-form reply-form" novalidate>
+							<div class="form-field">
+								<label for="reply-body">Your reply</label>
+								<textarea id="reply-body" rows="4" maxlength="8000" required placeholder="Add more detail or answer a question…"></textarea>
+							</div>
+							<div class="form-status" id="reply-status" aria-live="polite"></div>
+							<button type="submit" class="btn btn-primary" id="reply-btn">Send reply</button>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -141,7 +162,7 @@ import { withBase } from "../lib/base";
 		outline: none; border-color: var(--color-brand);
 		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 15%, transparent);
 	}
-	.form-field textarea { resize: vertical; min-height: 140px; }
+	.form-field textarea { resize: vertical; min-height: 120px; }
 	.form-status { display: none; padding: var(--spacing-md); border-radius: var(--radius); font-size: var(--font-size-sm); font-weight: 500; }
 	.form-status.success {
 		display: block; background: color-mix(in srgb, #22c55e 12%, transparent);
@@ -166,8 +187,10 @@ import { withBase } from "../lib/base";
 	.tickets-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--spacing-md); }
 	.ticket-item {
 		border: 1px solid var(--color-border); border-radius: var(--radius);
-		padding: var(--spacing-md); background: var(--color-bg);
+		padding: var(--spacing-md); background: var(--color-bg); cursor: pointer; text-align: left; width: 100%;
+		font: inherit; color: inherit;
 	}
+	.ticket-item:hover { border-color: var(--color-brand); }
 	.ticket-top {
 		display: flex; justify-content: space-between; gap: var(--spacing-sm);
 		align-items: flex-start; margin-bottom: 0.35rem;
@@ -182,14 +205,42 @@ import { withBase } from "../lib/base";
 	.ticket-status.is-done, .ticket-status.is-closed {
 		background: color-mix(in srgb, #22c55e 14%, transparent); color: #15803d;
 	}
-	.ticket-status.is-in_progress {
+	.ticket-status.is-in_progress, .ticket-status.is-waiting_on_client {
 		background: color-mix(in srgb, #f59e0b 16%, transparent); color: #b45309;
 	}
 	.ticket-meta { font-size: var(--font-size-xs); color: var(--color-muted); margin-bottom: 0.4rem; }
 	.ticket-msg {
 		font-size: var(--font-size-sm); color: var(--color-text); line-height: 1.5;
-		white-space: pre-wrap; word-break: break-word;
+		display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 	}
+	.thread-back { margin-bottom: var(--spacing-md); }
+	.thread-head { margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-border); }
+	.thread-head h2 { margin-bottom: 0.25rem; }
+	.thread-status {
+		font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+		color: var(--color-brand); margin-bottom: 0.35rem;
+	}
+	.thread-meta { font-size: var(--font-size-sm); color: var(--color-muted); margin: 0; }
+	.thread-messages {
+		display: flex; flex-direction: column; gap: var(--spacing-md);
+		margin-bottom: var(--spacing-xl); max-height: 55vh; overflow: auto; padding-right: 4px;
+	}
+	.bubble {
+		max-width: min(92%, 560px); padding: 0.85rem 1rem; border-radius: 14px;
+		border: 1px solid var(--color-border); background: var(--color-bg);
+	}
+	.bubble.staff {
+		align-self: flex-start;
+		background: color-mix(in srgb, var(--color-brand) 10%, var(--color-bg));
+		border-color: color-mix(in srgb, var(--color-brand) 28%, var(--color-border));
+	}
+	.bubble.client { align-self: flex-end; }
+	.bubble-meta {
+		font-size: 11px; font-weight: 700; color: var(--color-muted);
+		margin-bottom: 0.35rem; display: flex; justify-content: space-between; gap: 0.75rem;
+	}
+	.bubble-body { font-size: var(--font-size-sm); line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+	.reply-form { border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg); }
 	.hidden { display: none !important; }
 </style>
 
@@ -213,7 +264,20 @@ import { withBase } from "../lib/base";
 		ticketsList: document.getElementById("tickets-list") as HTMLElement,
 		ticketsEmpty: document.getElementById("tickets-empty") as HTMLElement,
 		refreshBtn: document.getElementById("refresh-tickets") as HTMLButtonElement,
+		viewList: document.getElementById("view-list") as HTMLElement,
+		viewThread: document.getElementById("view-thread") as HTMLElement,
+		threadBack: document.getElementById("thread-back") as HTMLButtonElement,
+		threadSubject: document.getElementById("thread-subject") as HTMLElement,
+		threadStatus: document.getElementById("thread-status") as HTMLElement,
+		threadMeta: document.getElementById("thread-meta") as HTMLElement,
+		threadMessages: document.getElementById("thread-messages") as HTMLElement,
+		replyForm: document.getElementById("reply-form") as HTMLFormElement,
+		replyBody: document.getElementById("reply-body") as HTMLTextAreaElement,
+		replyStatus: document.getElementById("reply-status") as HTMLElement,
+		replyBtn: document.getElementById("reply-btn") as HTMLButtonElement,
 	};
+
+	let activeTicketId: string | null = null;
 
 	function show(node: HTMLElement | null, on: boolean) {
 		if (!node) return;
@@ -283,19 +347,80 @@ import { withBase } from "../lib/base";
 			el.ticketsList.innerHTML = tickets
 				.map((t: any) => {
 					const st = String(t.status || "new");
-					return `<li class="ticket-item">
-						<div class="ticket-top">
-							<div class="ticket-subject">${esc(t.subject || "Request")}</div>
-							<span class="ticket-status is-${esc(st)}">${esc(statusLabel(st))}</span>
-						</div>
-						<div class="ticket-meta">${esc(fmtDate(t.created_at))}${t.page_url ? ` · ${esc(t.page_url)}` : ""}</div>
-						<div class="ticket-msg">${esc(t.message || "")}</div>
+					const preview = t.last_message_preview || t.message || "";
+					const when = t.last_message_at || t.updated_at || t.created_at;
+					return `<li>
+						<button type="button" class="ticket-item" data-id="${esc(t.id)}">
+							<div class="ticket-top">
+								<div class="ticket-subject">${esc(t.subject || "Request")}</div>
+								<span class="ticket-status is-${esc(st)}">${esc(statusLabel(st))}</span>
+							</div>
+							<div class="ticket-meta">${esc(fmtDate(when))}${t.last_message_from === "staff" ? " · Reply from support" : ""}</div>
+							<div class="ticket-msg">${esc(preview)}</div>
+						</button>
 					</li>`;
 				})
 				.join("");
+			el.ticketsList.querySelectorAll(".ticket-item").forEach((btn) => {
+				btn.addEventListener("click", () => {
+					const id = (btn as HTMLElement).dataset.id;
+					if (id) openThread(id);
+				});
+			});
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Failed to load";
 			el.ticketsList.innerHTML = `<li class="form-status error" style="display:block">${esc(msg)}</li>`;
+		}
+	}
+
+	function showList() {
+		activeTicketId = null;
+		show(el.viewThread, false);
+		show(el.viewList, true);
+		loadTickets();
+	}
+
+	async function openThread(id: string) {
+		activeTicketId = id;
+		show(el.viewList, false);
+		show(el.viewThread, true);
+		el.threadMessages.innerHTML = `<div class="support-muted">Loading conversation…</div>`;
+		setStatus(el.replyStatus, "", "");
+		try {
+			const res = await fetch(api(`/api/support/ticket?id=${encodeURIComponent(id)}`), {
+				credentials: "same-origin",
+			});
+			const data = await res.json();
+			if (!res.ok || !data.ok) throw new Error(data.error || "Failed to load");
+			const t = data.ticket;
+			const messages = data.messages || [];
+			el.threadSubject.textContent = t.subject || "Request";
+			el.threadStatus.textContent = statusLabel(t.status || "new");
+			el.threadMeta.textContent = [
+				t.page_url ? `Page: ${t.page_url}` : "",
+				`Opened ${fmtDate(t.created_at)}`,
+			]
+				.filter(Boolean)
+				.join(" · ");
+
+			if (!messages.length) {
+				el.threadMessages.innerHTML = `<div class="support-muted">No messages yet.</div>`;
+			} else {
+				el.threadMessages.innerHTML = messages
+					.map((m: any) => {
+						const who = m.sender === "staff" ? m.author_name || "Support team" : "You";
+						const side = m.sender === "staff" ? "staff" : "client";
+						return `<div class="bubble ${side}">
+							<div class="bubble-meta"><span>${esc(who)}</span><span>${esc(fmtDate(m.created_at))}</span></div>
+							<div class="bubble-body">${esc(m.body || "")}</div>
+						</div>`;
+					})
+					.join("");
+				el.threadMessages.scrollTop = el.threadMessages.scrollHeight;
+			}
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Failed to load";
+			el.threadMessages.innerHTML = `<div class="form-status error" style="display:block">${esc(msg)}</div>`;
 		}
 	}
 
@@ -310,7 +435,7 @@ import { withBase } from "../lib/base";
 		show(el.login, false);
 		show(el.dash, true);
 		el.userLabel.textContent = user.name ? `${user.name} (${user.email})` : user.email;
-		loadTickets();
+		showList();
 	}
 
 	el.loginForm?.addEventListener("submit", async (e) => {
@@ -373,10 +498,11 @@ import { withBase } from "../lib/base";
 			const data = await res.json();
 			if (!res.ok || !data.ok) throw new Error(data.error || "Could not submit");
 			el.ticketForm.reset();
-			setStatus(el.ticketStatus, "success", "Request submitted. We’ll take it from here.");
+			setStatus(el.ticketStatus, "success", "Request submitted. Open it anytime to see replies.");
 			el.ticketBtn.disabled = false;
 			el.ticketBtn.textContent = "Submit request";
-			await loadTickets();
+			if (data.ticket?.id) openThread(data.ticket.id);
+			else await loadTickets();
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Could not submit";
 			setStatus(el.ticketStatus, "error", msg);
@@ -385,9 +511,41 @@ import { withBase } from "../lib/base";
 		}
 	});
 
-	el.refreshBtn?.addEventListener("click", () => loadTickets());
+	el.replyForm?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		if (!activeTicketId) return;
+		setStatus(el.replyStatus, "", "");
+		const body = el.replyBody.value.trim();
+		if (!body) {
+			setStatus(el.replyStatus, "error", "Write a message first.");
+			return;
+		}
+		el.replyBtn.disabled = true;
+		el.replyBtn.textContent = "Sending…";
+		try {
+			const res = await fetch(api("/api/support/message"), {
+				method: "POST",
+				credentials: "same-origin",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ ticket_id: activeTicketId, body }),
+			});
+			const data = await res.json();
+			if (!res.ok || !data.ok) throw new Error(data.error || "Could not send");
+			el.replyBody.value = "";
+			setStatus(el.replyStatus, "success", "Reply sent.");
+			await openThread(activeTicketId);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Could not send";
+			setStatus(el.replyStatus, "error", msg);
+		} finally {
+			el.replyBtn.disabled = false;
+			el.replyBtn.textContent = "Send reply";
+		}
+	});
 
-	// Boot
+	el.refreshBtn?.addEventListener("click", () => loadTickets());
+	el.threadBack?.addEventListener("click", () => showList());
+
 	(async () => {
 		try {
 			const user = await loadMe();

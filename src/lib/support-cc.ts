@@ -12,6 +12,39 @@ async function hmacHex(secret: string, msg: string): Promise<string> {
 	return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+function supportNotifyUrl(): string {
+	return (
+		(env as Record<string, string | undefined>).CC_SUPPORT_URL ||
+		(env as Record<string, string | undefined>).CC_NOTIFY_URL?.replace(
+			/\/api\/push\/notify$/,
+			"/api/support/notify"
+		) ||
+		"https://cc.crweb.design/api/support/notify"
+	);
+}
+
+async function postSigned(payload: Record<string, unknown>): Promise<void> {
+	const secret = (env as Record<string, string | undefined>).PUSH_NOTIFY_SECRET;
+	if (!secret) return;
+	const url = supportNotifyUrl();
+	try {
+		const ts = Math.floor(Date.now() / 1000);
+		const bodyObj = { ...payload, ts };
+		const body = JSON.stringify(bodyObj);
+		const sig = await hmacHex(secret, `v0:${ts}:${body}`);
+		await fetch(url, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-CC-Signature": `t=${ts},v0=${sig}`,
+			},
+			body,
+		});
+	} catch {
+		// CC down — local row already saved
+	}
+}
+
 export type SupportTicketNotify = {
 	id: string;
 	site_id: string;
@@ -23,44 +56,52 @@ export type SupportTicketNotify = {
 	user_name: string;
 	status?: string;
 	created_at: string;
+	message_id?: string;
 };
 
-/** Fire-and-forget ticket webhook to Command Center. Never throws to caller. */
+/** Fire-and-forget new-ticket webhook to Command Center. */
 export async function notifySupportTicket(ticket: SupportTicketNotify): Promise<void> {
-	const secret = (env as Record<string, string | undefined>).PUSH_NOTIFY_SECRET;
-	if (!secret) return;
-	const url =
-		(env as Record<string, string | undefined>).CC_SUPPORT_URL ||
-		(env as Record<string, string | undefined>).CC_NOTIFY_URL?.replace(
-			/\/api\/push\/notify$/,
-			"/api/support/notify"
-		) ||
-		"https://cc.crweb.design/api/support/notify";
-	try {
-		const ts = Math.floor(Date.now() / 1000);
-		const body = JSON.stringify({
-			id: ticket.id,
-			site_id: ticket.site_id,
-			site: ticket.site,
-			subject: ticket.subject,
-			message: ticket.message,
-			page_url: ticket.page_url || "",
-			user_email: ticket.user_email,
-			user_name: ticket.user_name,
-			status: ticket.status || "new",
-			created_at: ticket.created_at,
-			ts,
-		});
-		const sig = await hmacHex(secret, `v0:${ts}:${body}`);
-		await fetch(url, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"X-CC-Signature": `t=${ts},v0=${sig}`,
-			},
-			body,
-		});
-	} catch {
-		// CC down — ticket already saved locally
-	}
+	await postSigned({
+		type: "ticket",
+		id: ticket.id,
+		site_id: ticket.site_id,
+		site: ticket.site,
+		subject: ticket.subject,
+		message: ticket.message,
+		page_url: ticket.page_url || "",
+		user_email: ticket.user_email,
+		user_name: ticket.user_name,
+		status: ticket.status || "new",
+		created_at: ticket.created_at,
+		message_id: ticket.message_id || "",
+	});
+}
+
+export type SupportMessageNotify = {
+	ticket_id: string;
+	message_id: string;
+	site_id: string;
+	site: string;
+	subject?: string;
+	body: string;
+	user_email: string;
+	user_name: string;
+	created_at: string;
+};
+
+/** Fire-and-forget client reply webhook to Command Center. */
+export async function notifySupportMessage(msg: SupportMessageNotify): Promise<void> {
+	await postSigned({
+		type: "message",
+		ticket_id: msg.ticket_id,
+		message_id: msg.message_id,
+		site_id: msg.site_id,
+		site: msg.site,
+		subject: msg.subject || "",
+		body: msg.body,
+		message: msg.body,
+		user_email: msg.user_email,
+		user_name: msg.user_name,
+		created_at: msg.created_at,
+	});
 }

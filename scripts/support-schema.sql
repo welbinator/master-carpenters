@@ -21,5 +21,15 @@ CREATE TABLE IF NOT EXISTS support_tickets (
   updated_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS support_messages (
+  id TEXT PRIMARY KEY,
+  ticket_id TEXT NOT NULL,
+  sender TEXT NOT NULL, -- client | staff
+  author_name TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_support_tickets_user ON support_tickets(user_id);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_created ON support_tickets(created_at);
+CREATE INDEX IF NOT EXISTS idx_support_messages_ticket ON support_messages(ticket_id, created_at);
