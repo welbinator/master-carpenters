@@ -12,9 +12,11 @@ interface Props {
 	image?: string;
 	/** Private pages (client support portal) — never index, skip analytics. */
 	noindex?: boolean;
+	/** Standalone pages (support portal) — render without site header/footer. */
+	bare?: boolean;
 }
 
-const { title, description, image, noindex = false } = Astro.props;
+const { title, description, image, noindex = false, bare = false } = Astro.props;
 const siteTitle = site.title;
 const fullTitle = title ? `${title} — ${siteTitle}` : siteTitle;
 const siteDescription = description || site.tagline;
@@ -72,6 +74,7 @@ const isStagingBuild =
 		)}
 	</head>
 	<body>
+		{!bare && (
 		<header class="site-header">
 			<nav class="nav">
 				<a href={withBase("/")} class="site-logo">
@@ -100,6 +103,7 @@ const isStagingBuild =
 				</div>
 			</div>
 		</header>
+		)}
 
 		<main>
 			<slot />
@@ -107,6 +111,7 @@ const isStagingBuild =
 
 		{isStagingBuild && <StagingReviewBar />}
 
+		{!bare && (
 		<footer class="site-footer">
 			<div class="footer-inner">
 				<div class="footer-brand">
@@ -138,6 +143,7 @@ const isStagingBuild =
 				</div>
 			</div>
 		</footer>
+		)}
 
 		<script>
 			const hamburger = document.getElementById('nav-hamburger') as HTMLButtonElement | null;
