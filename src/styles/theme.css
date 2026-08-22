@@ -2,15 +2,15 @@
   theme.css — Master Carpenters brand overrides.
   Replaces the marketing template's indigo/pink gradient palette
   with a clean, professional construction-company aesthetic:
-  warm off-white backgrounds, slate text, deep forest green brand,
+  warm off-white backgrounds, slate text, deep professional blue brand,
   and muted gold accent. No neon. No loud gradients.
 */
 
 /* Brand color overrides */
 :root {
-	--color-brand:        light-dark(#2d5a3d, #4a8c61);
-	--color-brand-strong: light-dark(#1e3d2a, #2d5a3d);
-	--color-brand-soft:   light-dark(#4a8c61, #6ab383);
+	--color-brand:        light-dark(#1d4e73, #4a90c2);
+	--color-brand-strong: light-dark(#123a58, #1d4e73);
+	--color-brand-soft:   light-dark(#3a7ca5, #6aa9cf);
 	--color-accent:       light-dark(#8b7355, #a89070);
 	--color-accent-soft:  light-dark(#c4a882, #d4bc9a);
 
