@@ -34,7 +34,10 @@ import { withBase } from "../lib/base";
 					</div>
 					<div class="form-field">
 						<label for="login-password">Password</label>
-						<input type="password" id="login-password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+						<div class="password-wrap">
+							<input type="password" id="login-password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+							<button type="button" id="toggle-password" class="password-toggle" aria-label="Show password" aria-pressed="false">Show</button>
+						</div>
 					</div>
 					<div class="form-status" id="login-status" aria-live="polite"></div>
 					<button type="submit" class="btn btn-primary btn-lg" id="login-btn">Log in</button>
@@ -197,6 +200,19 @@ import { withBase } from "../lib/base";
 		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 15%, transparent);
 	}
 	.form-field textarea { resize: vertical; min-height: 120px; }
+	.password-wrap { position: relative; display: flex; align-items: center; }
+	.password-wrap input { padding-right: 4.5rem; }
+	.password-toggle {
+		position: absolute; right: var(--spacing-xs); top: 50%; transform: translateY(-50%);
+		background: transparent; border: none; cursor: pointer;
+		font-family: var(--font-body); font-size: var(--font-size-sm); font-weight: 600;
+		color: var(--color-brand); padding: var(--spacing-xs) var(--spacing-sm);
+		border-radius: var(--radius);
+	}
+	.password-toggle:hover { text-decoration: underline; }
+	.password-toggle:focus-visible {
+		outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 25%, transparent);
+	}
 	.form-status { display: none; padding: var(--spacing-md); border-radius: var(--radius); font-size: var(--font-size-sm); font-weight: 500; }
 	.form-status.success {
 		display: block; background: color-mix(in srgb, #22c55e 12%, transparent);
@@ -441,6 +457,20 @@ import { withBase } from "../lib/base";
 	const base = (import.meta as any).env?.BASE_URL || "/";
 	const root = (base || "/").replace(/\/$/, "");
 	const api = (path: string) => `${root}${path.startsWith("/") ? path : `/${path}`}`;
+
+	// Show/hide password toggle
+	const pwInput = document.getElementById("login-password") as HTMLInputElement | null;
+	const pwToggle = document.getElementById("toggle-password") as HTMLButtonElement | null;
+	if (pwInput && pwToggle) {
+		pwToggle.addEventListener("click", () => {
+			const revealed = pwInput.type === "text";
+			pwInput.type = revealed ? "password" : "text";
+			pwToggle.textContent = revealed ? "Show" : "Hide";
+			pwToggle.setAttribute("aria-pressed", String(!revealed));
+			pwToggle.setAttribute("aria-label", revealed ? "Show password" : "Hide password");
+			pwInput.focus();
+		});
+	}
 
 	const el = {
 		loading: document.getElementById("support-loading") as HTMLElement,
