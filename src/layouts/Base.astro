@@ -21,6 +21,9 @@ const siteTitle = site.title;
 const fullTitle = title ? `${title} — ${siteTitle}` : siteTitle;
 const siteDescription = description || site.tagline;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// Social share image (Open Graph / Twitter). Default to the branded hero card;
+// callers can override per-page via the `image` prop. Must be an ABSOLUTE URL.
+const ogImage = new URL(withBase(image || "/images/master-carpenters__hero-og.jpg"), Astro.site).href;
 // GitHub Pages staging builds set PAGES_BASE=/master-carpenters/ → BASE_URL is not "/".
 // Live Cloudflare root builds leave it unset. Review bar must NEVER ship on live.
 const isStagingBuild =
@@ -45,8 +48,11 @@ const isStagingBuild =
 				<meta property="og:description" content={siteDescription} />
 				<meta property="og:type" content="website" />
 				<meta property="og:url" content={canonical} />
-				{image && <meta property="og:image" content={image} />}
+				<meta property="og:image" content={ogImage} />
+				<meta property="og:image:width" content="1200" />
+				<meta property="og:image:height" content="630" />
 				<meta name="twitter:card" content="summary_large_image" />
+				<meta name="twitter:image" content={ogImage} />
 			</>
 		)}
 		<Font cssVariable="--font-body" preload />
