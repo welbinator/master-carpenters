@@ -7,8 +7,10 @@ import { defineConfig, fontProviders } from "astro/config";
 export default defineConfig({
 	site: "https://mastercarpentersllc.com",
 	base: process.env.PAGES_BASE || "/",
-	// Keep CSS external so any relative url() paths resolve from /_astro/, not the page URL.
-	build: { inlineStylesheets: "never" },
+	// Inline all CSS into <head> to eliminate render-blocking stylesheet requests (FCP/LCP win).
+	// Safe here: audited /_astro/*.css contains ZERO relative url() paths, so nothing depends on
+	// the /_astro/ base. If a url() is ever added to CSS, revert to "never" or use absolute/data URLs.
+	build: { inlineStylesheets: "always" },
 	output: "static",
 	adapter: cloudflare({
 		platformProxy: { enabled: true },
