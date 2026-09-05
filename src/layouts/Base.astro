@@ -14,9 +14,13 @@ interface Props {
 	noindex?: boolean;
 	/** Standalone pages (support portal) — render without site header/footer. */
 	bare?: boolean;
+	/** LCP hero preload: exact srcset string to preload as an image (home page only). */
+	preloadImageSrcset?: string;
+	/** Fallback src for the LCP hero preload. */
+	preloadImageSrc?: string;
 }
 
-const { title, description, image, noindex = false, bare = false } = Astro.props;
+const { title, description, image, noindex = false, bare = false, preloadImageSrcset, preloadImageSrc } = Astro.props;
 const siteTitle = site.title;
 const fullTitle = title ? `${title} — ${siteTitle}` : siteTitle;
 const siteDescription = description || site.tagline;
@@ -56,6 +60,16 @@ const isStagingBuild =
 			</>
 		)}
 		<Font cssVariable="--font-body" preload />
+		{preloadImageSrcset && (
+			<link
+				rel="preload"
+				as="image"
+				href={preloadImageSrc}
+				imagesrcset={preloadImageSrcset}
+				imagesizes="100vw"
+				fetchpriority="high"
+			/>
+		)}
 		<script is:inline>
 			(function () {
 				var c = document.cookie;
@@ -68,13 +82,33 @@ const isStagingBuild =
 		</script>
 		{!noindex && (
 			<>
-				<!-- Google tag (gtag.js) -->
-				<script async src="https://www.googletagmanager.com/gtag/js?id=G-X8NNHK5HKG"></script>
-				<script is:inline>
+				{/* Google Analytics — deferred until browser idle / first interaction so the
+				    174KB gtag.js never competes with the LCP hero image for bandwidth.
+				    Full tracking is preserved; it just loads a beat later. */}
+				<script is:inline define:vars={{ GA_ID: "G-X8NNHK5HKG" }}>
 					window.dataLayer = window.dataLayer || [];
 					function gtag(){dataLayer.push(arguments);}
+					window.gtag = gtag;
 					gtag('js', new Date());
-					gtag('config', 'G-X8NNHK5HKG');
+					gtag('config', GA_ID);
+					var _gaLoaded = false;
+					function _loadGA(){
+						if (_gaLoaded) return;
+						_gaLoaded = true;
+						var s = document.createElement('script');
+						s.async = true;
+						s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+						document.head.appendChild(s);
+					}
+					// Load at first user interaction, or when the browser goes idle (whichever is first).
+					['scroll','mousemove','touchstart','keydown','click'].forEach(function(ev){
+						window.addEventListener(ev, _loadGA, { once: true, passive: true });
+					});
+					if ('requestIdleCallback' in window) {
+						requestIdleCallback(_loadGA, { timeout: 5000 });
+					} else {
+						window.addEventListener('load', function(){ setTimeout(_loadGA, 3000); });
+					}
 				</script>
 			</>
 		)}

@@ -4,11 +4,19 @@ import Hero from "../components/Hero.astro";
 import Features from "../components/Features.astro";
 import Testimonials from "../components/Testimonials.astro";
 import site from "../data/site.json";
+import content from "../data/content.json";
+import { withBase, withBaseSrcset } from "../lib/base";
+
+const hero = content.hero;
+const heroPreloadSrcset = hero.srcset ? withBaseSrcset(hero.srcset) : undefined;
+const heroPreloadSrc = withBase(hero.image);
 ---
 
 <Base
 	title={undefined}
 	description="Master Carpenters LLC — custom decks, siding, windows, and exterior work in Cedar Rapids, Iowa. Call Layne Stark for a free estimate."
+	preloadImageSrcset={heroPreloadSrcset}
+	preloadImageSrc={heroPreloadSrc}
 >
 	<Hero />
 
