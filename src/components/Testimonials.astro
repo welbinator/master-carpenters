@@ -63,44 +63,60 @@ const { headline, items: testimonials } = content.testimonials;
 		const cards = carousel.querySelectorAll(".testimonial-card");
 		let current = 0;
 		let dots = [];
+		let cardW = 340; // cached geometry — updated only inside measure()
+		let stops = 1;
+		const gap = 24;
 
-		function visibleCount() {
+		// Read ALL geometry in one batch, never interleaved with DOM writes.
+		function measure() {
 			const w = carousel.offsetWidth;
-			const cardW = cards[0]?.offsetWidth || 340;
-			const gap = 24;
-			return Math.max(1, Math.floor((w + gap) / (cardW + gap)));
+			cardW = cards[0]?.offsetWidth || 340;
+			const visible = Math.max(1, Math.floor((w + gap) / (cardW + gap)));
+			stops = Math.max(1, cards.length - visible + 1);
 		}
-		function totalStops() {
-			return Math.max(1, cards.length - visibleCount() + 1);
-		}
+		// Pure write phase — uses cached values, reads nothing.
 		function buildDots() {
-			dotsContainer.innerHTML = "";
+			const frag = document.createDocumentFragment();
 			dots = [];
-			const count = totalStops();
-			for (let i = 0; i < count; i++) {
+			for (let i = 0; i < stops; i++) {
 				const btn = document.createElement("button");
 				btn.className = "dot" + (i === current ? " active" : "");
 				btn.type = "button";
 				btn.setAttribute("aria-label", `Go to review ${i + 1}`);
 				btn.addEventListener("click", () => goTo(i));
-				dotsContainer.appendChild(btn);
+				frag.appendChild(btn);
 				dots.push(btn);
 			}
+			dotsContainer.replaceChildren(frag);
 		}
 		function goTo(index) {
-			const stops = totalStops();
 			current = ((index % stops) + stops) % stops;
-			const cardW = cards[0]?.offsetWidth || 340;
-			const gap = 24;
 			carousel.scrollTo({ left: current * (cardW + gap), behavior: "smooth" });
 			dots.forEach((d, i) => d.classList.toggle("active", i === current));
 		}
 
 		prevBtn?.addEventListener("click", () => goTo(current - 1));
 		nextBtn?.addEventListener("click", () => goTo(current + 1));
-		const ro = new ResizeObserver(() => { buildDots(); goTo(current); });
-		ro.observe(carousel);
-		buildDots();
+
+		// Debounced resize: one measure + one rebuild per animation frame.
+		let rafId = 0;
+		const ro = new ResizeObserver(() => {
+			if (rafId) return;
+			rafId = requestAnimationFrame(() => {
+				rafId = 0;
+				measure();
+				buildDots();
+				goTo(current);
+			});
+		});
+
+		// Defer initial build off the critical render path.
+		requestAnimationFrame(() => {
+			measure();
+			buildDots();
+			ro.observe(carousel);
+		});
+
 		let timer = setInterval(() => goTo(current + 1), 5000);
 		carousel.addEventListener("mouseenter", () => clearInterval(timer));
 		carousel.addEventListener("mouseleave", () => {
