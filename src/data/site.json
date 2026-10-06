@@ -12,8 +12,12 @@
       "url": "/"
     },
     {
-      "label": "Services",
-      "url": "/#services"
+      "label": "Decks",
+      "url": "/decks"
+    },
+    {
+      "label": "Siding",
+      "url": "/siding"
     },
     {
       "label": "Gallery",
@@ -34,8 +38,12 @@
       "url": "/"
     },
     {
-      "label": "Services",
-      "url": "/#services"
+      "label": "Deck Building",
+      "url": "/decks"
+    },
+    {
+      "label": "Siding Installation",
+      "url": "/siding"
     },
     {
       "label": "Gallery",

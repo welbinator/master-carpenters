@@ -1,4 +1,5 @@
 import cloudflare from "@astrojs/cloudflare";
+import sitemap from "@astrojs/sitemap";
 import { defineConfig, fontProviders } from "astro/config";
 
 // Production (Cloudflare root domain): leave PAGES_BASE unset → base "/"
@@ -12,6 +13,11 @@ export default defineConfig({
 	// the /_astro/ base. If a url() is ever added to CSS, revert to "never" or use absolute/data URLs.
 	build: { inlineStylesheets: "always" },
 	output: "static",
+	integrations: [
+		// Only emit a sitemap on production root builds. Staging (GitHub Pages,
+		// PAGES_BASE set) ships a blocking robots.txt and must not advertise URLs.
+		...(process.env.PAGES_BASE ? [] : [sitemap()]),
+	],
 	adapter: cloudflare({
 		platformProxy: { enabled: true },
 		imageService: "compile",

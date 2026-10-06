@@ -1,0 +1,156 @@
+---
+import Hero from "./Hero.astro";
+import site from "../data/site.json";
+import { withBase } from "../lib/base";
+
+export interface ServiceFeature {
+	title: string;
+	description: string;
+}
+
+interface Props {
+	/** Hero headline, e.g. "Deck Builder in Cedar Rapids, Iowa" */
+	heading: string;
+	/** Hero subheadline / intro paragraph */
+	subheading: string;
+	/** Hero background image src (root-relative, e.g. /images/foo.webp) */
+	heroImage: string;
+	/** Optional hero srcset */
+	heroSrcset?: string;
+	/** Intro body section heading */
+	bodyHeading: string;
+	/** Intro body paragraphs */
+	bodyParagraphs: string[];
+	/** "What's included" feature list */
+	features: ServiceFeature[];
+	/** Gallery photos for this service */
+	photos: { thumb400: string; thumb800: string; src: string; caption: string }[];
+	/** Closing CTA heading */
+	ctaHeading: string;
+}
+
+const {
+	heading,
+	subheading,
+	heroImage,
+	heroSrcset,
+	bodyHeading,
+	bodyParagraphs,
+	features,
+	photos,
+	ctaHeading,
+} = Astro.props;
+---
+
+<Hero
+	headline={heading}
+	subheadline={subheading}
+	image={heroImage}
+	srcset={heroSrcset}
+	primaryCtaLabel="Get a Free Estimate"
+	primaryCtaUrl="/contact"
+	secondaryCtaLabel="See Our Work"
+	secondaryCtaUrl="/gallery"
+/>
+
+<section class="service-body section">
+	<div class="container service-intro">
+		<h2 class="section-headline">{bodyHeading}</h2>
+		{bodyParagraphs.map((p) => <p class="service-para">{p}</p>)}
+	</div>
+</section>
+
+{features.length > 0 && (
+	<section class="service-features section">
+		<div class="container">
+			<h2 class="section-headline centered">What's Included</h2>
+			<div class="feature-grid">
+				{features.map((f) => (
+					<div class="feature-card">
+						<h3 class="feature-title">{f.title}</h3>
+						<p class="feature-desc">{f.description}</p>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+)}
+
+{photos.length > 0 && (
+	<section class="service-gallery section">
+		<div class="container">
+			<h2 class="section-headline centered">Recent Projects</h2>
+			<div class="svc-grid">
+				{photos.map((photo) => (
+					<figure class="svc-tile">
+						<img
+							src={withBase(photo.thumb400)}
+							srcset={`${withBase(photo.thumb400)} 400w, ${withBase(photo.thumb800)} 800w`}
+							sizes="(max-width: 540px) 100vw, (max-width: 900px) 50vw, 33vw"
+							width="400"
+							height="300"
+							alt={photo.caption || "Master Carpenters project photo"}
+							loading="lazy"
+							decoding="async"
+						/>
+						<figcaption>{photo.caption}</figcaption>
+					</figure>
+				))}
+			</div>
+			<div class="svc-gallery-link">
+				<a href={withBase("/gallery")} class="btn btn-secondary btn-lg">View the Full Gallery &rarr;</a>
+			</div>
+		</div>
+	</section>
+)}
+
+<section class="service-cta section">
+	<div class="container service-cta-inner">
+		<h2>{ctaHeading}</h2>
+		<p>Call or text Layne directly — he answers his own phone and gives honest, no-pressure estimates.</p>
+		<div class="service-cta-actions">
+			<a href={`tel:${site.phoneTel}`} class="btn btn-primary btn-lg">{site.phone}</a>
+			<a href={withBase("/contact")} class="btn btn-outline btn-lg">Request a Free Estimate</a>
+		</div>
+	</div>
+</section>
+
+<style>
+	.service-intro { max-width: 760px; }
+	.service-para { font-size: var(--font-size-lg); line-height: 1.75; color: var(--color-text-soft, var(--color-text)); margin-bottom: var(--spacing-md); }
+	.section-headline.centered { text-align: center; }
+	.service-features { background: var(--color-surface); }
+	.feature-grid {
+		display: grid; grid-template-columns: repeat(3, 1fr);
+		gap: var(--spacing-lg); margin-top: var(--spacing-xl);
+	}
+	.feature-card {
+		background: var(--color-bg); border: 1px solid var(--color-border, rgba(0,0,0,0.08));
+		border-radius: var(--radius-lg); padding: var(--spacing-lg);
+	}
+	.feature-title { font-size: var(--font-size-lg); font-weight: 700; margin-bottom: 0.5rem; color: var(--color-brand); }
+	.feature-desc { font-size: var(--font-size-base); line-height: 1.6; color: var(--color-text-soft, var(--color-text)); }
+	.svc-grid {
+		display: grid; grid-template-columns: repeat(3, 1fr);
+		gap: var(--spacing-md); margin-top: var(--spacing-xl);
+	}
+	.svc-tile { margin: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--color-surface); }
+	.svc-tile img { width: 100%; height: 240px; object-fit: cover; display: block; }
+	.svc-tile figcaption { padding: 0.6rem var(--spacing-md); font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); }
+	.svc-gallery-link { display: flex; justify-content: center; margin-top: var(--spacing-2xl); }
+	.service-cta { background: var(--color-brand); color: #fff; text-align: center; }
+	.service-cta-inner { max-width: 640px; }
+	.service-cta h2 { color: #fff; font-size: var(--font-size-2xl); margin-bottom: var(--spacing-sm); }
+	.service-cta p { color: rgba(255,255,255,0.85); font-size: var(--font-size-lg); margin-bottom: var(--spacing-lg); }
+	.service-cta-actions { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; }
+	.service-cta .btn-outline { border: 1.5px solid rgba(255,255,255,0.6); color: #fff; background: transparent; }
+	.service-cta .btn-outline:hover { background: rgba(255,255,255,0.12); border-color: #fff; }
+	@media (max-width: 900px) {
+		.feature-grid, .svc-grid { grid-template-columns: repeat(2, 1fr); }
+	}
+	@media (max-width: 600px) {
+		.feature-grid, .svc-grid { grid-template-columns: 1fr; }
+		.service-cta-actions { flex-direction: column; }
+		.service-cta-actions .btn { width: 100%; }
+	}
+</style>

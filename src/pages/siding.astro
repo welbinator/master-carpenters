@@ -1,0 +1,55 @@
+---
+import Base from "../layouts/Base.astro";
+import ServicePage from "../components/ServicePage.astro";
+import content from "../data/content.json";
+
+const sidingPhotos = content.gallery.filter((g) => g.category === "Siding" || g.category === "Exterior").slice(0, 6);
+
+const features = [
+	{ title: "Fiber Cement Siding", description: "Durable, fire-resistant James Hardie-style fiber cement that holds its finish for decades — ideal for Iowa's weather swings." },
+	{ title: "Vinyl Siding", description: "Budget-friendly, low-maintenance vinyl in a wide range of colors and profiles, installed clean and straight." },
+	{ title: "Wood & Engineered Siding", description: "Natural wood and engineered-wood siding for a warm, classic look with modern durability." },
+	{ title: "Trim, Soffit & Fascia", description: "Complete exterior detailing so your siding looks finished and seals out the weather." },
+	{ title: "Siding Repair & Replacement", description: "Replace damaged, faded, or storm-hit siding and restore your home's curb appeal and protection." },
+	{ title: "Weather & Moisture Protection", description: "Proper house wrap, flashing, and installation that keeps water out and energy bills down." },
+];
+
+const schema = {
+	"@context": "https://schema.org",
+	"@type": "Service",
+	serviceType: "Siding Installation",
+	provider: {
+		"@type": "GeneralContractor",
+		name: "Master Carpenters LLC",
+		telephone: "+1-319-360-4130",
+		areaServed: "Cedar Rapids, Iowa",
+		url: "https://mastercarpentersllc.com",
+	},
+	areaServed: { "@type": "City", name: "Cedar Rapids" },
+	name: "Siding Installation in Cedar Rapids, Iowa",
+	description:
+		"Master Carpenters LLC installs fiber cement, vinyl, and wood siding across Cedar Rapids and Eastern Iowa.",
+};
+---
+
+<Base
+	title="Siding Contractor in Cedar Rapids, IA | Installation"
+	description="Siding installation in Cedar Rapids, Iowa — fiber cement, vinyl, and wood siding by Master Carpenters. Improve curb appeal and weather protection. Free estimates."
+	image="/images/01KX1MWTFVZ3XFHFJPK8XGS0MV.webp"
+>
+	<script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+
+	<ServicePage
+		heading="Siding Contractor in Cedar Rapids, Iowa"
+		subheading="Fiber cement, vinyl, and wood siding — installed by Master Carpenters to boost your home's curb appeal and protect it from Iowa weather."
+		heroImage="/images/01KX1MWTFVZ3XFHFJPK8XGS0MV.webp"
+		bodyHeading="Siding That Protects and Transforms Your Home"
+		bodyParagraphs={[
+			"New siding is one of the highest-impact upgrades you can make — it transforms curb appeal while sealing your home against wind, rain, and Iowa's freeze-thaw cycles. Master Carpenters installs fiber cement, vinyl, and wood siding across Cedar Rapids and Eastern Iowa.",
+			"Owner Layne Stark leads every siding job himself, helping you choose the right material and color for your home and budget, then installing it with the trim, flashing, and moisture protection that make it last. Honest estimates, clean work, and a finish he stands behind.",
+		]}
+		features={features}
+		photos={sidingPhotos}
+		ctaHeading="Ready to upgrade your siding?"
+	/>
+</Base>

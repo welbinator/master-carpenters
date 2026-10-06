@@ -57,6 +57,34 @@ const isStagingBuild =
 				<meta property="og:image:height" content="630" />
 				<meta name="twitter:card" content="summary_large_image" />
 				<meta name="twitter:image" content={ogImage} />
+				<script
+					type="application/ld+json"
+					is:inline
+					set:html={JSON.stringify({
+						"@context": "https://schema.org",
+						"@type": "GeneralContractor",
+						name: "Master Carpenters LLC",
+						image: ogImage,
+						"@id": "https://mastercarpentersllc.com",
+						url: "https://mastercarpentersllc.com",
+						telephone: "+1-319-360-4130",
+						address: {
+							"@type": "PostalAddress",
+							addressLocality: "Cedar Rapids",
+							addressRegion: "IA",
+							addressCountry: "US",
+						},
+						areaServed: { "@type": "City", name: "Cedar Rapids" },
+						description:
+							"Master Carpenters LLC is a Cedar Rapids, Iowa deck builder and siding contractor. Custom decks, siding installation, and exterior work led by owner Layne Stark.",
+						makesOffer: [
+							{ "@type": "Offer", itemOffered: { "@type": "Service", name: "Deck Building" } },
+							{ "@type": "Offer", itemOffered: { "@type": "Service", name: "Siding Installation" } },
+						],
+						openingHours: "Mo-Fr 08:00-16:00",
+						priceRange: "$$",
+					})}
+				/>
 			</>
 		)}
 		<Font cssVariable="--font-body" preload />

@@ -1,0 +1,55 @@
+---
+import Base from "../layouts/Base.astro";
+import ServicePage from "../components/ServicePage.astro";
+import content from "../data/content.json";
+
+const deckPhotos = content.gallery.filter((g) => g.category === "Decks").slice(0, 6);
+
+const features = [
+	{ title: "Composite & Trex Decks", description: "Low-maintenance composite decking in a range of colors and styles — beautiful, durable, and built to shrug off Iowa winters." },
+	{ title: "Wood Decks", description: "Classic cedar and treated-lumber decks, hand-built and finished for lasting strength and natural good looks." },
+	{ title: "Multi-Level & Custom Designs", description: "From simple platforms to multi-level entertaining spaces with built-in seating, Layne designs each deck around your yard and how you live." },
+	{ title: "Railings & Stairs", description: "Cable, metal, composite, and wood railing options, plus safe, code-compliant stairs and landings." },
+	{ title: "Deck Repair & Restoration", description: "Reframing, reboarding, and refinishing to bring a tired or unsafe deck back to life." },
+	{ title: "Permits & Code Compliance", description: "We handle the details so your deck is built right, inspected, and ready to enjoy." },
+];
+
+const schema = {
+	"@context": "https://schema.org",
+	"@type": "Service",
+	serviceType: "Deck Building",
+	provider: {
+		"@type": "GeneralContractor",
+		name: "Master Carpenters LLC",
+		telephone: "+1-319-360-4130",
+		areaServed: "Cedar Rapids, Iowa",
+		url: "https://mastercarpentersllc.com",
+	},
+	areaServed: { "@type": "City", name: "Cedar Rapids" },
+	name: "Custom Deck Building in Cedar Rapids, Iowa",
+	description:
+		"Master Carpenters LLC builds custom composite, Trex, and wood decks across Cedar Rapids and Eastern Iowa.",
+};
+---
+
+<Base
+	title="Deck Builder in Cedar Rapids, IA | Custom Decks"
+	description="Custom deck building in Cedar Rapids, Iowa — composite, Trex, and wood decks built by Master Carpenters. Owner Layne Stark leads every project. Free estimates."
+	image="/images/01KX1MWH9AMKSSY7RA35V7WMQY.webp"
+>
+	<script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+
+	<ServicePage
+		heading="Deck Builder in Cedar Rapids, Iowa"
+		subheading="Custom composite, Trex, and wood decks — designed and built by Master Carpenters to fit your home, your yard, and the way you live outdoors."
+		heroImage="/images/01KX1MWH9AMKSSY7RA35V7WMQY.webp"
+		bodyHeading="Decks Built to Last Iowa Winters"
+		bodyParagraphs={[
+			"A great deck is more than a platform — it's where summer evenings, cookouts, and morning coffee happen. Master Carpenters designs and builds custom decks across Cedar Rapids and Eastern Iowa, using materials and framing that stand up to freeze-thaw cycles, heavy snow, and decades of use.",
+			"Owner Layne Stark personally leads every deck project, from the first measurement to the final railing. You get honest advice on composite vs. wood, a clear estimate with no surprises, and craftsmanship he'd put into his own home.",
+		]}
+		features={features}
+		photos={deckPhotos}
+		ctaHeading="Ready to build your deck?"
+	/>
+</Base>
